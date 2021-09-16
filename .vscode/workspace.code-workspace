@@ -1,0 +1,37 @@
+{
+	"folders": [
+		{
+			"path": "..\\..\\..\\..\\..\\..\\WEB\\FSM-Simulation"
+		},
+		{
+			"path": "..\\..\\..\\..\\..\\..\\WEB\\FSMStorage"
+		},
+		{
+			"path": "..\\..\\..\\..\\..\\..\\WEB\\react\\react-admin"
+		},
+		{
+			"path": "..\\..\\..\\..\\..\\..\\WEB\\interview"
+		},
+		{
+			"path": "..\\..\\..\\..\\..\\..\\WEB\\Talkin\\movie-admin"
+		},
+		{
+			"path": "..\\..\\..\\..\\..\\..\\WEB\\JSPRA"
+		},
+		{
+			"path": "..\\..\\..\\..\\..\\..\\WEB\\vue"
+		},
+		{
+			"path": "..\\..\\..\\..\\..\\..\\python"
+		},
+		{
+			"path": "..\\..\\..\\..\\..\\..\\blockchain\\demos"
+		},
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "interview"
+	}
+}
