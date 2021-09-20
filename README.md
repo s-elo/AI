@@ -1,3 +1,9 @@
+# Install the dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
 # Run the code
 
 *Run the code of each section using coresponding command*
