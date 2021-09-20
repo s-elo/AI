@@ -1,50 +1,44 @@
 import math
+import time
 import numpy as np
-
+from scipy.spatial import cKDTree
+import matplotlib.pyplot as plt
 
 class KNearest:
-    def __init__(self, train, test, K):
+    def __init__(self, train, test, K, kd_tree):
         self.train = train
         self.test = test
 
         self.K = K
+        self.kd_tree = kd_tree
 
     def get_K_nearest(self, sample):
-        # to record the number of being class1 among all the K_nearest samples
-        c1_ret = 0
-        # to record the number of being class2
-        c2_ret = 0
+        # p = 2 means using Euclidean distance
+        distances, index = self.kd_tree.query(sample, k=self.K, p=2)
 
-        # store the distances
-        dis = []
+        return index
 
-        for i in range(self.train.sampleNum):
-            model_sample = self.train.getOneSample(i, 'log')
-            # get the corresponding label
-            label = self.train.getOneLabel(i)
+    def predict(self, sample, isPrint = False):
+        K_nearest_index = self.get_K_nearest(sample)
 
-            dis_cur = self.get_distance(sample, model_sample)
-            # store the dis and the corresponding label
-            dis.append({
-                'dis': dis_cur,
-                'label': label
-            })
+        # get the number of classifications within the K-nearest
+        c1 = 0
+        c2 = 0
 
-        # sort it and slice the first K elements
-        K_nearest = sorted(dis, key=lambda x: x['dis'])[0:self.K]
+        for i in range(self.K):
+            # when K = 1, K_nearest_index is just a number
+            feature = K_nearest_index[i] if self.K != 1 else K_nearest_index
+            label = self.train.labels[i]
 
-        return K_nearest
+            if (label == 1):
+                c1 = c1 + 1
+            else:
+                c2 = c2 + 1
 
-    def predict(self, sample):
-        K_nearest = self.get_K_nearest(sample)
+        if (isPrint):
+            print('c1:', c1, 'c2:', c2)
 
-        # get the number of the class1
-        # since the label is 1, so the sum should be the number
-        c1_num = sum(list(map(lambda x: x['label'], K_nearest)))
-        # the rest should be class2 whose value is 0
-        c2_num = self.K - c1_num
-
-        if (c1_num > c2_num):
+        if (c1 >= c2):
             return 1
         else:
             return 0
@@ -61,6 +55,11 @@ class KNearest:
             sample = data_set.getOneSample(i)
             label = data_set.getOneLabel(i)
 
+            # if (i == 10):
+            #     ret = self.predict(sample, True)
+            # else:
+            #     ret = self.predict(sample)
+
             ret = self.predict(sample)
 
             if (ret != label):
@@ -68,11 +67,61 @@ class KNearest:
 
         return error_num / data_set.sampleNum
 
-    def get_distance(self, sample1, sample2):
-        return np.sqrt(np.sum(np.square(sample1, sample2)))
 
+def k_nearest_simul(train, test, K=None):
+    start = time.time()
 
-def K_nearest_simul(train, test, K):
-    K_model = KNearest(train, test, K)
+    # construct a global kd-tree
+    kd_tree = cKDTree(train.getData('log'), copy_data=True)
 
-    print(K_model.getErrorRate())
+    # just test one K
+    if (K != None):
+        K_model = KNearest(train, test, K, kd_tree)
+        print(K_model.getErrorRate())
+
+        return
+
+    step = 1
+    K = 1
+
+    # error rate for different K
+    train_ret = []
+    test_ret = []
+
+    # to store the K value as the X axis
+    K_label = []
+
+    while (K <= 100):
+        K_model = KNearest(train, test, K, kd_tree)
+
+        train_error_rate = K_model.getErrorRate('train')
+        test_error_rate = K_model.getErrorRate('test')
+
+        train_ret.append(train_error_rate)
+        test_ret.append(test_error_rate)
+
+        K_label.append(K)
+
+        if (K == 1 or K == 10 or K == 100):
+            print('===when K = ' + str(K) + '===')
+            print('train_error_rate:', train_error_rate)
+            print('test_error_rate:', test_error_rate)
+            print('\n')
+            
+        if (K == 10):
+            step = 5
+
+        K = K + step
+
+    end = time.time()
+
+    print('run time:', end - start)
+    
+    plt.plot(K_label, train_ret, 'r')
+    plt.plot(K_label, test_ret, 'b')
+    plt.ylabel('Error Rate')
+    plt.xlabel('K')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+
+    return (train_ret, test_ret, K_label)

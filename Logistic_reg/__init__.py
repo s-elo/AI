@@ -1,6 +1,7 @@
 import numpy as np
 import math
-
+import time
+import matplotlib.pyplot as plt
 
 class LogisticReg:
     def __init__(self, train, test, reg='true', lamada = 1):
@@ -56,6 +57,7 @@ class LogisticReg:
         # make the bias as 0
         W_bias_zero[W_row_num - 1] = [0]
 
+        # regularize the g
         g = np.dot(samples, (A.T - labels.T)) + lamada * W_bias_zero
 
         # get the second derivative h of nnl to W
@@ -121,11 +123,17 @@ class LogisticReg:
 
 
 def logistic_reg_simul(train, test, reg=True):
+    start = time.time()
+
     error_rate_test = []
     error_rate_train = []
 
     step = 1
     lamada = 1
+
+    # store the lamada as X axis
+    l = []
+
     while (lamada <= 100):
         lg = LogisticReg(train, test, reg, lamada)
 
@@ -134,12 +142,34 @@ def logistic_reg_simul(train, test, reg=True):
         predict_train = lg.predict('train')
         predict_test = lg.predict('test')
 
-        error_rate_train.append(np.sum(predict_train == 1) / predict_train.size)
-        error_rate_test.append(np.sum(predict_test == 1) / predict_test.size)
+        train_error = np.sum(predict_train == 1) / predict_train.size
+        test_error = np.sum(predict_test == 1) / predict_test.size
+
+        error_rate_train.append(train_error)
+        error_rate_test.append(test_error)
+
+        if (lamada == 1 or lamada == 10 or lamada == 100):
+            print('===when λ = ' + str(lamada) + '===')
+            print('train_error_rate:', train_error)
+            print('test_error_rate:', test_error)
+            print('\n')
 
         if (lamada >= 10):
             step = 5
         
+        l.append(lamada)
+
         lamada += step
     
+    end = time.time()
+
+    print('run time:', end - start)
+
+    plt.plot(l, error_rate_train, 'r')
+    plt.plot(l, error_rate_test, 'b')
+    plt.ylabel('Error Rate')
+    plt.xlabel('λ')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+
     return (error_rate_test, error_rate_train)

@@ -1,6 +1,7 @@
 import math
 import numpy as np
 
+
 class GaussianNB:
     def __init__(self, train, test):
         self.train = train
@@ -50,10 +51,10 @@ class GaussianNB:
             mean, var = self.cache_ML_mean_var[_class][f]
 
             cur_prob = self.gaussian(test_sample[f], mean, var)
-            
+
             if (cur_prob <= 0):
                 return -math.inf
-                
+
             prob = prob + math.log(cur_prob)
 
         return prob
@@ -95,3 +96,13 @@ class GaussianNB:
 
     def gaussian(_, x, mean, variance):
         return (1 / math.sqrt(2 * math.pi * variance)) * math.exp(-0.5 * (x - mean)**2 / variance)
+
+
+def gaussian_NB_simul(train, test):
+    model = GaussianNB(train, test)
+
+    train_error_rate = model.getErrorRate('train')
+    test_error_rate = model.getErrorRate('test')
+
+    print('train_error_rate:', train_error_rate)
+    print('test_error_rate:', test_error_rate)

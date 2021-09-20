@@ -1,4 +1,6 @@
 import math
+import time
+import matplotlib.pyplot as plt
 
 
 class BetaNB:
@@ -46,7 +48,7 @@ class BetaNB:
     # get the probability of the i-th feature == 1 when given corresponding class
     # namely P(X_i = 1 | y = _class)
     def prob_f_c(self, feature_i, _class, beta_hyper):
-        # the total number of label == _class
+        # the total number of labels == _class
         _class_num = 0
         # the total number of the i-th feature == 1 when class is _class
         feature_i_num = 0
@@ -96,21 +98,45 @@ class BetaNB:
         return errors / data_set.sampleNum
 
 
-def beta_NB_simul(train, test, data_set='test', hyper_range=(0, 100)):
+def beta_NB_simul(train, test, hyper_range=(0, 100)):
+    start = time.time()
+
     beta_hyper = hyper_range[0]
 
-    error_rate = []
+    train_error_rate = []
+    test_error_rate = []
+
+    # store as X axis
+    beta = []
 
     while (beta_hyper <= hyper_range[1]):
         model_nb = BetaNB(train, test, beta_hyper)
 
-        error = model_nb.getErrorRate(data_set)
+        train_error = model_nb.getErrorRate('train')
+        test_error = model_nb.getErrorRate('test')
 
-        error_rate.append(error)
+        train_error_rate.append(train_error)
+        test_error_rate.append(test_error)
 
         if (beta_hyper == 1 or beta_hyper == 10 or beta_hyper == 100):
-            print('error rate when a = ' + str(beta_hyper), error)
+            print('===error rate when α = ' + str(beta_hyper) + '===')
+            print('train_error_rate:', train_error)
+            print('test_error_rate:', test_error)
+            print('\n')
+
+        beta.append(beta_hyper)
 
         beta_hyper = beta_hyper + 0.5
 
-    return error_rate
+    end = time.time()
+
+    print('run time:', end - start)
+
+    plt.plot(beta, train_error_rate, 'r')
+    plt.plot(beta, test_error_rate, 'b')
+    plt.ylabel('Error Rate')
+    plt.xlabel('Beta Hyperparameter')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+
+    return (train_error_rate, test_error_rate, beta)
