@@ -1,4 +1,4 @@
-from data_handler import *
+from data_handler import loadData
 from Beta_NB import beta_NB_simul
 from Gaussian_NB import gaussian_NB_simul
 from Logistic_reg import logistic_reg_simul

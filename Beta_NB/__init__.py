@@ -89,7 +89,7 @@ class BetaNB:
             data_set = self.train
 
         for s in range(data_set.sampleNum):
-            sample = data_set.getOneSample(s)
+            sample = data_set.getOneSample(s, 'binary')
             label = data_set.getOneLabel(s)
 
             if (self.predict(sample, label) == False):

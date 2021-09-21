@@ -27,8 +27,9 @@ class KNearest:
 
         for i in range(self.K):
             # when K = 1, K_nearest_index is just a number
-            feature = K_nearest_index[i] if self.K != 1 else K_nearest_index
-            label = self.train.labels[i]
+            feature_index = K_nearest_index[i] if self.K != 1 else K_nearest_index
+            # get the corresponding label
+            label = self.train.getOneLabel(feature_index)
 
             if (label == 1):
                 c1 = c1 + 1
@@ -52,7 +53,7 @@ class KNearest:
             data_set = self.train
 
         for i in range(data_set.sampleNum):
-            sample = data_set.getOneSample(i)
+            sample = data_set.getOneSample(i, 'log')
             label = data_set.getOneLabel(i)
 
             # if (i == 10):

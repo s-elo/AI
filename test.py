@@ -6,10 +6,16 @@ from scipy.spatial import cKDTree
 
 train, test = loadData()
 
+# print(train.getData('binary')[3])
 # print('training data:', train.getData().shape)
-# print('training label:', train.labels.shape)
+print('training label:', train.labels.shape)
 # print('test data:', test.getData().shape)
 # print('test label:', test.labels.shape)
+
+model_nb = BetaNB(train, test, 0.5)
+train_error = model_nb.getErrorRate('train')
+print(model_nb.prob_f_c_cache[0][0:5], train_error)
+
 
 # cn = 0
 

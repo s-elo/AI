@@ -62,9 +62,6 @@ class LogisticReg:
 
         # get the second derivative h of nnl to W
         # (D + 1, N) * (N, N) * (N, D + 1) = (D + 1, D + 1)
-        def map_fn(x):
-            return x * (1 - x)
-
         s = np.diag(list(map(lambda x: x * (1 - x), A[0])))
         h = np.dot(np.dot(samples, s), samples.T)
 
