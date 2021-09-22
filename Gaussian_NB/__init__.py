@@ -1,4 +1,5 @@
 import math
+import time
 import numpy as np
 
 
@@ -99,10 +100,18 @@ class GaussianNB:
 
 
 def gaussian_NB_simul(train, test):
+    start = time.time()
+
     model = GaussianNB(train, test)
 
     train_error_rate = model.getErrorRate('train')
     test_error_rate = model.getErrorRate('test')
-
+    
+    print('\n')
     print('train_error_rate:', train_error_rate)
     print('test_error_rate:', test_error_rate)
+
+    end = time.time()
+
+    print('\n')
+    print('run time:', end - start)

@@ -13,20 +13,21 @@ pip install -r requirements.txt
 ```bash
 python main.py beta_NB
 ```
-It takes about 175s
+It takes about 2s
 
 ## 2. Gaussian Naive Bayes
 
 ```bash
 python main.py gaussian_NB
 ```
+It takes about 1s
 
 ## 3. Logistic regression
 
 ```bash
 python main.py logistic_reg
 ```
-It takes about 230s
+It takes about 36s
 
 ## 4. K-Nearest Neighbors
 
