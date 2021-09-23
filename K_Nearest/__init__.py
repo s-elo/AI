@@ -56,11 +56,6 @@ class KNearest:
             sample = data_set.getOneSample(i, 'log')
             label = data_set.getOneLabel(i)
 
-            # if (i == 10):
-            #     ret = self.predict(sample, True)
-            # else:
-            #     ret = self.predict(sample)
-
             ret = self.predict(sample)
 
             if (ret != label):

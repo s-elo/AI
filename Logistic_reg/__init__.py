@@ -40,8 +40,8 @@ class LogisticReg:
         W_row_num = np.size(W, 0)
 
         # remove the last row to get rid of the bias
-        no_bias = W[0: W_row_num - 1]
-        reg_value = (1 / 2) * lamada * np.dot(no_bias.T, no_bias)
+        # no_bias = W[0: W_row_num - 1]
+        # reg_value = (1 / 2) * lamada * np.dot(no_bias.T, no_bias)
 
         assert(samples.shape == (self.train.featureNum + 1, sample_number))
         assert(labels.shape == (1, sample_number))
@@ -89,9 +89,9 @@ class LogisticReg:
 
         n = 0
 
-        # stop when every diff is less than 0.0000001 
+        # stop when every diff is less than 0.000001 
         # or n is greater than the max_iteration
-        while (((np.abs(diff) > 0.0000001).all() and n <= max_iteration)):
+        while (((np.abs(diff) > 0.000001).all() and n <= max_iteration)):
             h, g = self.iteration()
 
             diff = np.dot(np.linalg.inv(h), g)
@@ -167,7 +167,6 @@ def logistic_reg_simul(train, test, reg=True):
             print('===when λ = ' + str(lamada) + '===')
             print('train_error_rate:', train_error)
             print('test_error_rate:', test_error)
-            print('\n')
 
         if (lamada >= 10):
             step = 5
