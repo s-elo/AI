@@ -7,7 +7,7 @@ import time
 from scipy.spatial import cKDTree
 
 train, test = loadData()
-# logistic_reg_simul(train, test)
+logistic_reg_simul(train, test)
 # gaussian_NB_simul(train, test)
 # print(train.getData('binary')[3])
 # print('training data:', train.getData().shape)

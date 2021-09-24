@@ -75,7 +75,8 @@ class LogisticReg:
 
         # for regularization
         I = np.eye(W.shape[0])
-        I[0][0] = 0
+        f_num = self.train.featureNum
+        I[f_num-1][f_num-1] = 0
 
         h = h + lamada * I
 
@@ -91,6 +92,7 @@ class LogisticReg:
 
         # stop when every diff is less than 0.000001 
         # or n is greater than the max_iteration
+        # np.abs(diff) > 0.000001).all()
         while (((np.abs(diff) > 0.000001).all() and n <= max_iteration)):
             h, g = self.iteration()
 
