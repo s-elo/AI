@@ -46,7 +46,7 @@ class Pca:
         # (D, dim)
         select_eigenVecs = eigenVecs[:, 0:dim]
 
-        # (dim, D)*(D, N) = (dim, N).T
+        # (N, D)*(D, dim) = (N, dim)
         result = np.dot(diffs, select_eigenVecs)
 
         return (result, select_eigenVecs)
@@ -89,12 +89,23 @@ def class_simul(pca, dim=40, ispaint=False):
     if (ispaint and dim == 2):
         plt.scatter(
             train_reduct_imgs[:, 0:1], train_reduct_imgs[:, 1:2], c=pca.train_labels, marker=".")
+            
         return
     elif (ispaint and dim == 3):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(train_reduct_imgs[:, 0:1], train_reduct_imgs[:, 1:2],
                    train_reduct_imgs[:, 2:3], c=pca.train_labels, marker='.')
+
+        # show the eigenfaces
+        fig = plt.figure()
+        plt.subplot(221)
+        plt.imshow(select_eigenVecs[:, 0:1].T.reshape(32, 32))
+        plt.subplot(222)
+        plt.imshow(select_eigenVecs[:, 1:2].T.reshape(32, 32))
+        plt.subplot(212)
+        plt.imshow(select_eigenVecs[:, 2:3].T.reshape(32, 32))
+
         return
 
     knn = KNeighborsClassifier(n_neighbors=1, p=2, metric='minkowski')
