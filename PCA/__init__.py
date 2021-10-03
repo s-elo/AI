@@ -52,6 +52,8 @@ class Pca:
         return (result, select_eigenVecs)
 
 # 40: 27, 80: 23, 200: 23
+
+
 def pca_simul():
     random_state = 23
 
@@ -59,22 +61,25 @@ def pca_simul():
         random_state=random_state)
 
     pca = Pca(train_data, train_labels, test_data, test_labels)
-        
+
     class_simul(pca, dim=2, ispaint=True)
     class_simul(pca, dim=3, ispaint=True)
 
-    accuracy_40 = class_simul(pca, dim=40)
-    accuracy_80 = class_simul(pca, dim=80)
-    accuracy_200 = class_simul(pca, dim=200)
+    accuracy_PIE_40, accuracy_selfies_40 = class_simul(pca, dim=40)
+    accuracy_PIE_80, accuracy_selfies_80 = class_simul(pca, dim=80)
+    accuracy_PIE_200, accuracy_selfies_200 = class_simul(pca, dim=200)
 
     print('Dimension 40:')
-    print('accuracy on the CMU PIE test images: %.6f%%' %(accuracy_40*100))
+    print('accuracy on the CMU PIE test images: %.6f%%' % (accuracy_PIE_40*100))
+    print('accuracy on my selfies: %.6f%%' % (accuracy_selfies_40*100))
     print('===================================')
     print('Dimension 80:')
-    print('accuracy on the CMU PIE test images: %.6f%%' %(accuracy_80*100))
+    print('accuracy on the CMU PIE test images: %.6f%%' % (accuracy_PIE_80*100))
+    print('accuracy on my selfies: %.6f%%' % (accuracy_selfies_80*100))
     print('===================================')
     print('Dimension 200:')
-    print('accuracy on the CMU PIE test images: %.6f%%' %(accuracy_200*100))
+    print('accuracy on the CMU PIE test images: %.6f%%' % (accuracy_PIE_200*100))
+    print('accuracy on my selfies: %.6f%%' % (accuracy_selfies_200*100))
 
     plt.show()
 
@@ -88,29 +93,43 @@ def class_simul(pca, dim=40, ispaint=False):
 
     if (ispaint and dim == 2):
         plt.scatter(
-            train_reduct_imgs[:, 0:1], train_reduct_imgs[:, 1:2], c=pca.train_labels, marker=".")
-            
+            train_reduct_imgs[0:-7, 0:1], train_reduct_imgs[0:-7, 1:2], c=pca.train_labels[0:-7], marker=".")
+
+        # selfies
+        plt.scatter(
+            train_reduct_imgs[-7:, 0:1], train_reduct_imgs[-7:, 1:2], c='red', marker="x")
+
         return
     elif (ispaint and dim == 3):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(train_reduct_imgs[:, 0:1], train_reduct_imgs[:, 1:2],
-                   train_reduct_imgs[:, 2:3], c=pca.train_labels, marker='.')
+        ax.scatter(train_reduct_imgs[0:-7, 0:1], train_reduct_imgs[0:-7, 1:2],
+                   train_reduct_imgs[0:-7, 2:3], c=pca.train_labels[0:-7], marker='.')
+
+        # selfies
+        ax.scatter(train_reduct_imgs[-7:, 0:1], train_reduct_imgs[-7:, 1:2],
+                   train_reduct_imgs[-7:, 2:3], c='red', marker='x')
 
         # show the eigenfaces
         fig = plt.figure()
         plt.subplot(221)
-        plt.imshow(select_eigenVecs[:, 0:1].T.reshape(32, 32))
+        plt.imshow(select_eigenVecs[:, 0:1].T.reshape(32, 32), cmap='gray')
         plt.subplot(222)
-        plt.imshow(select_eigenVecs[:, 1:2].T.reshape(32, 32))
+        plt.imshow(select_eigenVecs[:, 1:2].T.reshape(32, 32), cmap='gray')
         plt.subplot(212)
-        plt.imshow(select_eigenVecs[:, 2:3].T.reshape(32, 32))
+        plt.imshow(select_eigenVecs[:, 2:3].T.reshape(32, 32), cmap='gray')
 
         return
 
     knn = KNeighborsClassifier(n_neighbors=1, p=2, metric='minkowski')
     knn.fit(train_reduct_imgs, pca.train_labels)
-    predictions = knn.predict(test_reduct_imgs)
-    accuracy = accuracy_score(pca.test_labels, predictions)
 
-    return accuracy
+    # for the CMU PIE test set
+    predictions = knn.predict(test_reduct_imgs[0:-3])
+    accuracy_PIE = accuracy_score(pca.test_labels[0:-3], predictions)
+
+    # for my selfies
+    predictions = knn.predict(test_reduct_imgs[-3:])
+    accuracy_selfies = accuracy_score(pca.test_labels[-3:], predictions)
+
+    return (accuracy_PIE, accuracy_selfies)

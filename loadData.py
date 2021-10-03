@@ -38,4 +38,27 @@ def loadData(sub_range=(1, 26), img_num=170, random_state=1):
         train_labels += labels[0:len(train_part)]
         test_labels += labels[0:len(test_part)]
 
+    imgs = []
+    labels = []
+
+    # get the selfies
+    for i in range(1, 11):
+        img = Image.open('./dataset/selfies/' + str(i) + '.jpg')
+
+        img_vector = np.array(img).reshape(img.size[0]*img.size[1])
+
+        imgs.append(img_vector)
+        # 0 represents selfie subject
+        labels.append(0)
+
+    # sperate the training and testing dataset
+    train_part, test_part = train_test_split(
+        imgs, test_size=0.3, random_state=random_state)
+
+    train_data += train_part
+    test_data += test_part
+
+    train_labels += labels[0:len(train_part)]
+    test_labels += labels[0:len(test_part)]
+
     return (np.array(train_data), np.array(train_labels), np.array(test_data), np.array(test_labels))
