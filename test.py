@@ -43,23 +43,33 @@ from sklearn.metrics import accuracy_score
 # print(len(train_data), len(test_data))
 # print(len(train_labels))
 
-# arr = [
-#     [2, 7, 3],
-#     [3, 1, 3],
-#     [1, 1, 3]
-# ]
+arr = [
+    [2, 7, 3],
+    [3, 1, 3],
+    [1, 1, 3]
+]
 
 # print(np.mean(arr, axis=0).reshape(1, 3).T)
 # print(arr - np.mean(arr, axis=0))
 
 # # print(np.cov(arr, rowvar=False))
 # eigenVals, eigenVecs = np.linalg.eig(arr)
-# print(eigenVals[1], eigenVecs[:, 0:2])
+# idx = eigenVals.argsort()[::-1]   
+# eigenVals = eigenVals[idx]
+# eigenVecs = eigenVecs[:,idx]
+# print(eigenVals)
+# print(eigenVecs[:, 0:2])
+# print('\n')
 # print(np.dot(arr, eigenVecs[:, 1].T), eigenVals[1]*eigenVecs[:, 1])
+
+# u, s, vh = np.linalg.svd(arr, full_matrices=True)
+# print(u)
+# print(s)
+# print(vh)
 
 # arr1 = [1, 2, 3, 4]
 arr2 = [2, 1, 3, 6]
-
+print(arr2[-1])
 # print(accuracy_score(arr1, arr2))
 
-print(arr2[0:-3])
+# print(arr2[0:-3])

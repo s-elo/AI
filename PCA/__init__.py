@@ -1,7 +1,5 @@
 import numpy as np
-import random
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from loadData import loadData
@@ -16,20 +14,19 @@ class Pca:
         self.train_labels = train_labels
         self.test_labels = test_labels
 
-        # get the mean of the training dataset
+        # get the mean of the training dataset (1, D)
         self.train_mean = np.mean(train_data, axis=0).reshape(
             1, train_data.shape[1])
         self.test_mean = np.mean(test_data, axis=0).reshape(
             1, test_data.shape[1])
 
-    def dimReduction(self, dataset='train', dim=2):
+        # cache the eigenvectors at the beginning
+        self.dimReduction()
+
+    def dimReduction(self):
         # dataset => (N, D)
-        if (dataset == 'train'):
-            data = self.train_data
-            mean = self.train_mean
-        else:
-            data = self.test_data
-            mean = self.test_mean
+        data = self.train_data
+        mean = self.train_mean
 
         sample_num = data.shape[0]
 
@@ -41,17 +38,37 @@ class Pca:
 
         # get the eigenValues and eigenVectors
         # eigenVecs[:, i] (column) => eigenVals[i]
-        eigenVals, eigenVecs = np.linalg.eig(S)
+        # eigenVals, eigenVecs = np.linalg.eig(S)
+
+        # sorted from the largest o the smallest
+        # idx = eigenVals.argsort()[::-1]
+        # eigenVals = eigenVals[idx]
+        # eigenVecs = eigenVecs[:,idx]
+
+        # eigenVecs, eigenVals, eigenVecsT
+        eigenVecs, _, _ = np.linalg.svd(S, full_matrices=True)
+
+        self.eigenVecs = eigenVecs
+
+        return eigenVecs
+
+    def getReducedFaces(self, dim):
+        # (D, D)
+        eigenVecs = self.eigenVecs
 
         # (D, dim)
         select_eigenVecs = eigenVecs[:, 0:dim]
 
         # (N, D)*(D, dim) = (N, dim)
-        result = np.dot(diffs, select_eigenVecs)
+        train_reduct_imgs = np.dot(
+            (self.train_data - self.train_mean), select_eigenVecs)
 
-        return (result, select_eigenVecs)
+        test_reduct_imgs = np.dot(
+            (self.test_data - self.test_mean), select_eigenVecs)
 
-# 40: 27, 80: 23, 200: 23
+        return (train_reduct_imgs, test_reduct_imgs, select_eigenVecs)
+
+# 40: 27, 80: 23, 200: 23 (random state)
 
 
 def pca_simul():
@@ -70,26 +87,26 @@ def pca_simul():
     accuracy_PIE_200, accuracy_selfies_200 = class_simul(pca, dim=200)
 
     print('Dimension 40:')
-    print('accuracy on the CMU PIE test images: %.6f%%' % (accuracy_PIE_40*100))
+    print('accuracy on the CMU PIE test images: %.6f%%' %
+          (accuracy_PIE_40*100))
     print('accuracy on my selfies: %.6f%%' % (accuracy_selfies_40*100))
     print('===================================')
     print('Dimension 80:')
-    print('accuracy on the CMU PIE test images: %.6f%%' % (accuracy_PIE_80*100))
+    print('accuracy on the CMU PIE test images: %.6f%%' %
+          (accuracy_PIE_80*100))
     print('accuracy on my selfies: %.6f%%' % (accuracy_selfies_80*100))
     print('===================================')
     print('Dimension 200:')
-    print('accuracy on the CMU PIE test images: %.6f%%' % (accuracy_PIE_200*100))
+    print('accuracy on the CMU PIE test images: %.6f%%' %
+          (accuracy_PIE_200*100))
     print('accuracy on my selfies: %.6f%%' % (accuracy_selfies_200*100))
 
     plt.show()
 
 
 def class_simul(pca, dim=40, ispaint=False):
-    # (N, dim), (D, dim)
-    train_reduct_imgs,  select_eigenVecs = pca.dimReduction(
-        dataset='train', dim=dim)
-    test_reduct_imgs = np.dot(
-        (pca.test_data - pca.test_mean), select_eigenVecs)
+    train_reduct_imgs, test_reduct_imgs, select_eigenVecs = pca.getReducedFaces(
+        dim)
 
     if (ispaint and dim == 2):
         plt.scatter(
