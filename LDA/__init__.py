@@ -24,6 +24,8 @@ class Lda:
         # (1, D)
         self.total_mean = np.mean(train_data, axis=0).reshape(
             1, train_data.shape[1])
+        self.test_mean = np.mean(test_data, axis=0).reshape(
+            1, test_data.shape[1])
 
         # get the means of each class in training set including selfies (class_num, D)
         self.class_means = []
@@ -86,10 +88,10 @@ class Lda:
         select_eigenVecs = eigenVecs[:, 0:dim]
 
         # (dim, D)*(D, N) = (N, dim)
-        train_reduct_imgs = np.dot(self.train_data, select_eigenVecs)
+        train_reduct_imgs = np.dot(self.train_data - self.total_mean, select_eigenVecs)
 
         # (N, D)*(D, dim) = (N, dim)
-        test_reduct_imgs = np.dot(self.test_data, select_eigenVecs)
+        test_reduct_imgs = np.dot(self.test_data - self.test_mean, select_eigenVecs)
 
         return (train_reduct_imgs, test_reduct_imgs, select_eigenVecs)
 
@@ -129,7 +131,7 @@ class Lda:
 
 
 def lda_simul():
-    random_state = 23
+    random_state = 16
 
     train_data, train_labels, test_data, test_labels = loadData(
         random_state=random_state)
