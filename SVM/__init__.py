@@ -1,4 +1,3 @@
-import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn import svm
 from loadData import loadData

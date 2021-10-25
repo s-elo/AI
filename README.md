@@ -12,6 +12,12 @@ python main.py pca
 python main.py lda
 ```
 
+## Run the GMM
+
+```bash
+python main.py gmm
+```
+
 ## Run the SVM
 
 ```bash
