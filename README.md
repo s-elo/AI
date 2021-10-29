@@ -23,3 +23,9 @@ python main.py gmm
 ```bash
 python main.py svm
 ```
+
+## Run the CNN
+
+```bash
+python main.py cnn
+```

@@ -36,18 +36,21 @@ from sklearn.metrics import accuracy_score
 
 # print(train, test)
 
-# random_state = random.seed(1)
+random_state = random.seed(1)
 
-# train_data, train_labels, test_data, test_labels = loadData(random_state=random_state)
+train_data, train_labels, test_data, test_labels = loadData(random_state=random_state)
 
-# print(len(train_data), len(test_data))
-# print(len(train_labels))
+train_data = train_data.reshape(train_data.shape[0],32,32,1)
+plt.imshow(train_data[1], cmap ='gray')
+plt.show()
+print(train_data.shape, len(test_data))
+print(len(train_labels))
 
-arr = [
-    [2, 7, 3],
-    [3, 1, 3],
-    [1, 1, 3]
-]
+# arr = [
+#     [2, 7, 3],
+#     [3, 1, 3],
+#     [1, 1, 3]
+# ]
 
 # print(np.mean(arr, axis=0).reshape(1, 3).T)
 # print(arr - np.mean(arr, axis=0))
@@ -68,8 +71,8 @@ arr = [
 # print(vh)
 
 # arr1 = [1, 2, 3, 4]
-arr2 = [2, 1, 3, 6]
-print(arr2[-1])
+# arr2 = [2, 1, 3, 6]
+# print(arr2[-1])
 # print(accuracy_score(arr1, arr2))
 
 # print(arr2[0:-3])
