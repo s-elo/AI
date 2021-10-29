@@ -47,7 +47,30 @@ def cnn_simul():
 
     train_data, train_labels, test_data, test_labels = loadData(
         random_state=random_state)
-    
+
     cnn = Cnn(train_data, train_labels, test_data, test_labels)
 
-    cnn.model.summary()
+    model = cnn.model
+
+    model.summary()
+
+    model.compile(optimizer='adam',
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(
+                      from_logits=True),
+                  metrics=['accuracy'])
+
+    history = model.fit(cnn.train_data, cnn.train_labels, epochs=28)
+
+    plt.plot(history.history['accuracy'], label='accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.ylim([0.5, 1])
+    plt.legend(loc='lower right')
+
+    test_loss, test_acc = model.evaluate(
+        cnn.test_data,  cnn.test_labels, verbose=2)
+
+    print('test set loss:', test_loss)
+    print('test set accuracy:', test_acc)
+
+    plt.show()
