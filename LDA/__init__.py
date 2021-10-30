@@ -87,7 +87,7 @@ class Lda:
         # (D, dim)
         select_eigenVecs = eigenVecs[:, 0:dim]
 
-        # (dim, D)*(D, N) = (N, dim)
+        # (N, D)*(D, dim) = (N, dim)
         train_reduct_imgs = np.dot(self.train_data - self.total_mean, select_eigenVecs)
 
         # (N, D)*(D, dim) = (N, dim)
