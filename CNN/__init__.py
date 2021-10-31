@@ -75,7 +75,7 @@ def cnn_simul():
 
     history = model.fit(cnn.train_data, cnn.train_labels, epochs=epochs)
 
-    plt.plot(history.history['accuracy'], label='accuracy')
+    plt.plot(history.history['accuracy'], label='accuracy with padding')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.ylim([0.5, 1])
@@ -84,8 +84,8 @@ def cnn_simul():
     test_loss, test_acc = model.evaluate(
         cnn.test_data,  cnn.test_labels, verbose=2)
 
-    print('test set loss with padding:', test_loss)
-    print('test set accuracy with padding:', test_acc)
+    print('test set loss with padding: %.6f%%' % (test_loss*100))
+    print('test set accuracy with padding: %.6f%%' % (test_acc*100))
 
     # without padding model
     cnn = Cnn(train_data, train_labels, test_data,
@@ -102,7 +102,7 @@ def cnn_simul():
 
     history = model.fit(cnn.train_data, cnn.train_labels, epochs=epochs)
 
-    plt.plot(history.history['accuracy'], label='accuracy')
+    plt.plot(history.history['accuracy'], label='accuracy without padding')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.ylim([0.5, 1])
@@ -111,7 +111,7 @@ def cnn_simul():
     test_loss, test_acc = model.evaluate(
         cnn.test_data,  cnn.test_labels, verbose=2)
 
-    print('test set loss without padding:', test_loss)
-    print('test set accuracy without padding:', test_acc)
+    print('test set loss without padding: %.6f%%' % (test_loss*100))
+    print('test set accuracy without padding: %.6f%%' % (test_acc*100))
 
     plt.show()
