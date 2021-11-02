@@ -110,7 +110,7 @@ def class_simul(pca, dim=40, ispaint=False):
 
     if (ispaint and dim == 2):
         plt.scatter(
-            train_reduct_imgs[0:-7, 0:1], train_reduct_imgs[0:-7, 1:2], c=pca.train_labels[0:-7], marker=".")
+            train_reduct_imgs[0:500, 0:1], train_reduct_imgs[0:500, 1:2], c=pca.train_labels[0:500], marker=".")
 
         # selfies
         plt.scatter(
@@ -120,8 +120,8 @@ def class_simul(pca, dim=40, ispaint=False):
     elif (ispaint and dim == 3):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(train_reduct_imgs[0:-7, 0:1], train_reduct_imgs[0:-7, 1:2],
-                   train_reduct_imgs[0:-7, 2:3], c=pca.train_labels[0:-7], marker='.')
+        ax.scatter(train_reduct_imgs[0:500, 0:1], train_reduct_imgs[0:500, 1:2],
+                   train_reduct_imgs[0:500, 2:3], c=pca.train_labels[0:500], marker='.')
 
         # selfies
         ax.scatter(train_reduct_imgs[-7:, 0:1], train_reduct_imgs[-7:, 1:2],
