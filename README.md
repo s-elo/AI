@@ -1,5 +1,9 @@
 # pattern-recognition
 
+## Dataset
+
+Put the "PIE" folder in the "dataset" folder with the selfies folder
+
 ## Install dependencies
 
 ```bash
