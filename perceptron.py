@@ -20,16 +20,19 @@ class Perceptron:
         feature_size = input_data[0]
         sample_num = input_data[1]
 
+        cur_epoch = 0
         for i in range(0, epoch):
+            cur_epoch = cur_epoch + 1
+
             last_activated = self.forward_progress(
                 input_data=input_data, activation='step')
 
             # get the error
             errors = input_label - last_activated
-            print(errors)
+
             # converged
             if np.all(errors == 0):
-                return self.weights[0]
+                break
 
             # only one layer
             weights = self.weights[0]
@@ -37,6 +40,7 @@ class Perceptron:
             self.weights[0] = weights + learning_rate * \
                 np.dot(input_data, errors.T)
 
+        print(cur_epoch)
         return self.weights[0]
 
     def forward_progress(self, input_data, activation='sigmoid'):
@@ -58,6 +62,12 @@ class Perceptron:
         # (output_size(neuron_num), sample_num)
         return activated
 
+    def regression_LLS(self, input_data, input_labels):
+        # (sample_num, feature_size)
+        regression_matrix = input_data.T
+
+        return np.dot(np.dot(np.linalg.inv(np.dot(regression_matrix.T, regression_matrix)), regression_matrix.T), input_labels.T)
+
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
@@ -67,9 +77,9 @@ class Perceptron:
 
 if __name__ == '__main__':
     X = np.array([[1, 0, 0], [1, 1, 0], [1, 1, 1], [1, 0, 1]]).T
-    Y_AND = np.array([[0, 0, 1, 0]])
-
-    print(X)
+    Y = np.array([[0, 1, 1, 1]])
+    # X = np.array([[1, 0], [1, 1]]).T
+    # Y = np.array([[1, 0]])
 
     sp = Perceptron()
 
@@ -77,19 +87,35 @@ if __name__ == '__main__':
     # sp.add_layer(weight_shape=(3, 2))
     # sp.add_layer(weight_shape=(2, 1))
     sp.add_layer(weight_shape=(3, 1))
-    print(sp.weights)
-    weights = sp.train(X, Y_AND)
+
+    weights = sp.train(X, Y, learning_rate=0.001, epoch=100)
     print(weights)
 
-    def get_points(weights):
-        bias = -weights[0] / weights[2]
-        slop = -weights[1] / weights[2]
+    def draw_line(weights, input_data, input_labels, regression=False):
+        if regression:
+            bias = weights[0]
+            slop = weights[1]
+        else:
+            bias = -weights[0] / weights[2]
+            slop = -weights[1] / weights[2]
 
-        return ([-1, 2], [-1*slop + bias, 2*slop + bias])
+        plt.figure()
+        plt.plot([-1, 5], [-1*slop + bias, 5*slop + bias])
 
-    p1, p2 = get_points(weights)
+        if regression:
+            plt.scatter(input_data[1:], input_labels[0:], c='red', marker='x')
+        else:
+            plt.scatter(input_data[1:2], input_data[2:], c='red', marker='x')
 
-    plt.plot(p1, p2)
-    plt.scatter([0, 0, 1], [0, 1, 0], c='red', marker='x')
-    plt.scatter([1], [1], c='green', marker='x')
+    draw_line(weights.T[0], X, Y)
+
+    regression_data = np.array([[1, 1], [1, 1.5], [1, 3], [1, 3.5], [1, 4]]).T
+    regression_labels = np.array([[3.5, 2.5, 2, 1, 1]])
+
+    regression_weights = sp.regression_LLS(regression_data, regression_labels)
+    print(regression_weights.T[0])
+
+    draw_line(regression_weights, regression_data,
+              regression_labels, regression=True)
+
     plt.show()
