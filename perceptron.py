@@ -37,8 +37,8 @@ class Perceptron:
             # only one layer
             weights = self.weights[0]
             # update weights (feature_size, neuron_num(1)) + (feature_size, sample_num) * (sample_num, 1)
-            self.weights[0] = weights + learning_rate * \
-                np.dot(input_data, errors.T)
+            self.weights[0] = weights + \
+                np.dot(input_data, learning_rate * errors.T)
 
         print(cur_epoch)
         return self.weights[0]
@@ -68,6 +68,27 @@ class Perceptron:
 
         return np.dot(np.dot(np.linalg.inv(np.dot(regression_matrix.T, regression_matrix)), regression_matrix.T), input_labels.T)
 
+    def regression_LMS(self, input_data, input_labels, epochs=100, learning_rate=0.01):
+        # (feature_size,1)
+        weights = np.random.randn(
+            input_data.shape[0], 1) * 0.01
+
+        w_cache = []
+        b_cache = []
+
+        for i in range(0, epochs):
+            # (1, sample_num)
+            local_field = np.dot(weights.T, input_data)
+
+            errors = input_labels - local_field
+
+            weights = weights + np.dot(input_data, learning_rate * errors.T)
+
+            b_cache.append(weights[0])
+            w_cache.append(weights[1])
+
+        return (weights, w_cache, b_cache)
+
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
@@ -89,7 +110,7 @@ if __name__ == '__main__':
     sp.add_layer(weight_shape=(3, 1))
 
     weights = sp.train(X, Y, learning_rate=0.001, epoch=100)
-    print(weights)
+    # print(weights)
 
     def draw_line(weights, input_data, input_labels, regression=False):
         if regression:
@@ -107,15 +128,27 @@ if __name__ == '__main__':
         else:
             plt.scatter(input_data[1:2], input_data[2:], c='red', marker='x')
 
-    draw_line(weights.T[0], X, Y)
+    # draw_line(weights.T[0], X, Y)
 
-    regression_data = np.array([[1, 1], [1, 1.5], [1, 3], [1, 3.5], [1, 4]]).T
-    regression_labels = np.array([[3.5, 2.5, 2, 1, 1]])
+    regression_data = np.array(
+        [[1, 0], [1, 0.8], [1, 1.6], [1, 3], [1, 4], [1, 5]]).T
+    regression_labels = np.array([[0.5, 1, 4, 5, 6, 8]])
 
-    regression_weights = sp.regression_LLS(regression_data, regression_labels)
-    print(regression_weights.T[0])
+    LLS_weights = sp.regression_LLS(regression_data, regression_labels)
+    print(LLS_weights)
 
-    draw_line(regression_weights, regression_data,
+    LMS_weights, w_cache, b_cache = sp.regression_LMS(
+        regression_data, regression_labels, learning_rate=0.1)
+    print(LMS_weights)
+
+    draw_line(LLS_weights, regression_data,
               regression_labels, regression=True)
 
+    draw_line(LMS_weights, regression_data,
+              regression_labels, regression=True)
+
+    plt.figure()
+    plt.plot(np.arange(0, 100, 1), w_cache)
+    plt.plot(np.arange(0, 100, 1), b_cache)
+    plt.legend(['w', 'b'])
     plt.show()
