@@ -8,8 +8,8 @@ def draw_line(weights, input_data, input_labels, regression=False):
         bias = weights[1]
         slop = weights[0]
     else:
-        bias = -weights[1] / weights[2]
-        slop = -weights[0] / weights[2]
+        bias = -weights[2] / weights[1]
+        slop = -weights[0] / weights[1]
 
     plt.figure()
     plt.plot([-1, 5], [-1*slop + bias, 5*slop + bias])
@@ -31,9 +31,9 @@ def Q3():
     classifier.add_layer(neuron_num=1, activation='step')
 
     weights = classifier.train(X, Y, learning_rate=0.001, epochs=100)
-    print(weights)
+    print(weights[0].T[0])
 
-    draw_line(weights.T[0], X, Y)
+    draw_line(weights[0].T[0], X, Y)
 
     plt.show()
 
