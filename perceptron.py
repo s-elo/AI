@@ -1,3 +1,4 @@
+from copy import copy
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -11,13 +12,15 @@ class Perceptron:
         self.activations = {
             'sigmoid': self.sigmoid,
             'step': self.step,
-            'linear': self.linear
+            'identity': self.identity,
+            'relu': self.relu
         }
 
         self.backwards = {
             'sigmoid': self.sigmoid_backward,
             'step': self.step_backward,
-            'linear': self.linear_backward
+            'identity': self.identity_backward,
+            'relu': self.relu_backward
         }
 
     def add_layer(self, neuron_num, activation='sigmoid'):
@@ -125,7 +128,13 @@ class Perceptron:
             dw = self.backward_progress(
                 input_label=input_label, learning_rate=learning_rate)
 
-            if np.all(np.array(dw) == 0):
+            allZero = True
+            for w in dw:
+                if np.any(w != 0):
+                    allZero = False
+                    break
+
+            if allZero:
                 break
 
             # update weights
@@ -133,6 +142,12 @@ class Perceptron:
                 assert(self.layers[layer_idx]
                        ['weight'].shape == dw[layer_idx].shape)
                 self.layers[layer_idx]['weight'] = self.layers[layer_idx]['weight'] + dw[layer_idx]
+
+            output = self.forward_progress(
+                input_data=input_data)
+
+            if np.all((input_label - output) == 0):
+                break
 
             # get the error
             # errors = input_label - last_activated
@@ -194,6 +209,16 @@ class Perceptron:
             weights.append(layer['weight'])
         return weights
 
+    def relu(self, z):
+        return np.maximum(0, z)
+
+    def relu_backward(self, z):
+        x = np.array(z, copy=True)
+        x[x <= 0] = 0
+        x[x > 0] = 1
+
+        return x
+
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
@@ -208,26 +233,56 @@ class Perceptron:
     def step_backward(self, z):
         return 1
 
-    def linear(self, z):
+    def identity(self, z):
         return z
 
-    def linear_backward(self, z):
+    def identity_backward(self, z):
         return 1
 
 
 if __name__ == '__main__':
-   # (feature, sample)
+    x = np.arange(0, 6, 0.1)
+    y1 = np.sin(x)
+    y2 = np.cos(x)
+    plt.plot(x, y1, label="sin")
+    plt.plot(x, y2, label="cos", linestyle="--")
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.title('sin & cos')
+    plt.legend()  # 打上标签
+
+    x1 = np.reshape(x, (1, 60))
+    y1 = np.reshape(y1, (1, 60))
+
+    # (feature, sample)
     X = np.array([[0, 0], [1, 0], [1, 1], [0, 1]]).T
     Y = np.array([[0, 1, 0, 1]])
 
-    classifier = Perceptron(input_shape=X.shape)
+    regression_data = np.array(
+        [[0], [0.8], [1.6], [3], [4], [5]]).T
+    regression_labels = np.array([[0.5, 1, 4, 5, 6, 8]])
+
+    classifier = Perceptron(input_shape=regression_data.shape)
+    # classifier = Perceptron(input_shape=x1.shape)
 
     # (input_feature, neuron_num)
-    classifier.add_layer(neuron_num=2, activation='sigmoid')
-    classifier.add_layer(neuron_num=1, activation='sigmoid')
+    classifier.add_layer(neuron_num=3, activation='relu')
+    classifier.add_layer(neuron_num=1, activation='identity')
 
-    weights = classifier.train(X, Y, learning_rate=0.001, epochs=1)
-    print(weights)
+    weights = classifier.train(
+        regression_data, regression_labels, learning_rate=0.001, epochs=100)
+    # weights = classifier.train(
+    #     x1, y1, learning_rate=0.001, epochs=100)
+    # print(weights)
+
+    output = classifier.predict(regression_data)
+    # output = classifier.predict(x1)
+
+    plt.figure()
+    plt.plot(regression_data[0], output[0])
+    plt.scatter(regression_data, regression_labels[0:], c='red', marker='x')
+
+    # plt.plot((x1)[0], output[0])
 
     # arr1 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 1]]).T
     # arr2 = np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0], [1, 0, 0]]).T
@@ -235,3 +290,4 @@ if __name__ == '__main__':
     # print(np.append(arr1, np.ones(shape=(1, 4)), axis=0))
 
     # print(arr1 * arr2)
+    plt.show()

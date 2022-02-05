@@ -35,8 +35,6 @@ def Q3():
 
     draw_line(weights[0].T[0], X, Y)
 
-    plt.show()
-
 
 def Q4():
     regression_data = np.array(
@@ -68,8 +66,8 @@ def Q4():
         regression_data, regression_labels, epochs=100, learning_rate=0.01)
     print(LMS_w)
 
-    plt.show()
 
-
-# Q3()
+Q3()
 Q4()
+
+plt.show()
