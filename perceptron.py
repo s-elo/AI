@@ -262,27 +262,27 @@ if __name__ == '__main__':
         [[0], [0.8], [1.6], [3], [4], [5]]).T
     regression_labels = np.array([[0.5, 1, 4, 5, 6, 8]])
 
-    classifier = Perceptron(input_shape=regression_data.shape)
-    # classifier = Perceptron(input_shape=x1.shape)
+    # classifier = Perceptron(input_shape=regression_data.shape)
+    classifier = Perceptron(input_shape=x1.shape)
 
     # (input_feature, neuron_num)
     classifier.add_layer(neuron_num=3, activation='relu')
     classifier.add_layer(neuron_num=1, activation='identity')
 
-    weights = classifier.train(
-        regression_data, regression_labels, learning_rate=0.001, epochs=100)
     # weights = classifier.train(
-    #     x1, y1, learning_rate=0.001, epochs=100)
+    #     regression_data, regression_labels, learning_rate=0.001, epochs=100)
+    weights = classifier.train(
+        x1, y1, learning_rate=0.001, epochs=100)
     # print(weights)
 
-    output = classifier.predict(regression_data)
-    # output = classifier.predict(x1)
+    # output = classifier.predict(regression_data)
+    output = classifier.predict(x1)
 
     plt.figure()
-    plt.plot(regression_data[0], output[0])
-    plt.scatter(regression_data, regression_labels[0:], c='red', marker='x')
+    # plt.plot(regression_data[0], output[0])
+    # plt.scatter(regression_data, regression_labels[0:], c='red', marker='x')
 
-    # plt.plot((x1)[0], output[0])
+    plt.plot((x1)[0], output[0])
 
     # arr1 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 1]]).T
     # arr2 = np.array([[1, 0, 0], [0, 0, 1], [0, 1, 0], [1, 0, 0]]).T
