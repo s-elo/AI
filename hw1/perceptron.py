@@ -149,22 +149,7 @@ class Perceptron:
             if np.all((input_label - output) == 0):
                 break
 
-            # get the error
-            # errors = input_label - last_activated
-
-            # converged
-            # if np.all(errors == 0):
-            #     break
-
-            # only one layer
-            # weights = self.layers[0]['weight']
-
-            # update weights (feature_size, neuron_num(1)) + (feature_size, sample_num) * (sample_num, 1)
-            # self.layers[0]['weight'] = weights + \
-            #     np.dot(np.append(
-            #         input_data, np.ones(shape=(1, self.sample_num)), axis=0), learning_rate * errors.T)
-
-        print(cur_epoch)
+        print(f'epochs: {cur_epoch}')
         # return self.layers[0]['weight']
         return self.weights
 
@@ -240,6 +225,7 @@ class Perceptron:
         return 1
 
 
+# test
 if __name__ == '__main__':
     x = np.arange(0, 6, 0.1)
     y1 = np.sin(x)
@@ -249,7 +235,7 @@ if __name__ == '__main__':
     plt.xlabel("x")
     plt.ylabel("y")
     plt.title('sin & cos')
-    plt.legend()  # 打上标签
+    plt.legend()
 
     x1 = np.reshape(x, (1, 60))
     y1 = np.reshape(y1, (1, 60))
