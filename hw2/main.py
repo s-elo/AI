@@ -59,10 +59,14 @@ def Q1(lr=0.001):
         plt.figure()
         plt.scatter(x_data, y_data, c='red', marker='x')
         plt.plot(x_data, y_data)
+        plt.xlabel("x")
+        plt.ylabel("y")
         plt.title('trajectory of (x, y) using gradient method')
 
         plt.figure()
         plt.plot(steps, fn_data)
+        plt.xlabel("iteration")
+        plt.ylabel("function value")
         plt.title('function value versus iteration of gradient method')
 
     def hessian(x, y):
@@ -95,10 +99,14 @@ def Q1(lr=0.001):
         plt.figure()
         plt.scatter(x_data, y_data, c='red', marker='x')
         plt.plot(x_data, y_data)
+        plt.xlabel("x")
+        plt.ylabel("y")
         plt.title('trajectory of (x, y) using Newton\'s method')
 
         plt.figure()
         plt.plot(steps, fn_data)
+        plt.xlabel("iteration")
+        plt.ylabel("function value")
         plt.title('function value versus iteration of Newton\'s method')
 
     gradient(x, y)
