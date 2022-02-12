@@ -2,7 +2,7 @@ from sklearn.neural_network import MLPRegressor
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-
+import math
 
 def Q1(lr=0.001):
     def fn(x, y):
@@ -114,7 +114,7 @@ def Q1(lr=0.001):
 
 
 def Q2():
-    x = np.arange(0, 6, 0.1)
+    x = np.arange(-1.6, 1.6, 0.05)
     y1 = np.sin(x)
     y2 = np.cos(x)
     plt.plot(x, y1, label="sin")
