@@ -40,7 +40,7 @@ def loadData(train_num=450, test_num=50):
                 test_labels.append(0 if subject == 'automobile' else 1)
 
     train_data, train_labels = shuffle(
-        np.array(train_data), np.array(train_labels), random_state=0)
+        np.array(train_data), np.array(train_labels), random_state=1)
     test_data, test_labels = shuffle(
         np.array(test_data), np.array(test_labels), random_state=0)
 
@@ -66,7 +66,7 @@ def mlp(train_x, train_y, test_x, test_y, opts={}, normalization=False):
     '''
     if normalization:
         train_x = (train_x - train_x.mean(axis=0)) / train_x.std(axis=0)
-        test_x = (test_x - train_x.mean(axis=0)) / train_x.std(axis=0)
+        test_x = (test_x - test_x.mean(axis=0)) / test_x.std(axis=0)
 
     mlp = MLPClassifier(random_state=1, max_iter=1, **opts)
     params = mlp.get_params()
@@ -152,7 +152,9 @@ print('\n')
 
 print(f'==================multiple layers perceptron=====================')
 mlp_opts = {
-    'hidden_layer_sizes': (8, )
+    'hidden_layer_sizes': (28, 5),
+    # l2 penalty
+    'alpha': 10
 }
 mlp(train_x, train_y, test_x, test_y, mlp_opts, normalization=True)
 
