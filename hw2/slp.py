@@ -1,3 +1,4 @@
+from random import random
 import numpy as np
 
 
@@ -25,8 +26,9 @@ def get_acc(prediction, label):
     return 100 - np.mean(np.abs(prediction - label)) * 100
 
 
-def init_with_zeros(dimensions):
-    w = np.zeros(shape=(dimensions, 1))
+def init_weights(dimensions, random_state=1):
+    np.random.seed(random_state)
+    w = np.random.randn(dimensions, 1) * 0.01
 
     b = 0
 
@@ -108,8 +110,8 @@ def optimize(w, b, X, Y, tx, ty, iteration_number, learning_rate, print_cost=Fal
     return (params, grads, costs, train_acc, test_acc)
 
 
-def slp_model(train_data, train_label, test_data, test_label, iteration_number, learning_rate, print_cost=False):
-    w, b = init_with_zeros(train_data.shape[0])
+def slp_model(train_data, train_label, test_data, test_label, iteration_number, learning_rate, random_state=1, print_cost=False):
+    w, b = init_weights(train_data.shape[0], random_state=random_state)
 
     params, grads, costs, train_acc, test_acc = optimize(
         w, b, train_data, train_label, test_data, test_label, iteration_number, learning_rate, print_cost)
@@ -124,6 +126,6 @@ def slp_model(train_data, train_label, test_data, test_label, iteration_number, 
 
     # get the accuracy
     print(f"training data accuracy: {train_a}%")
-    print(f"testing data accuracy: {test_a}%")
+    print(f"testing data accuracy at the end of the trianing steps: {test_a}%")
 
     return (train_acc, test_acc)
