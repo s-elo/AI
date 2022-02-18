@@ -52,7 +52,7 @@ train_x, train_y, test_x, test_y = loadData()
 print(train_x.shape, test_y.shape)
 
 
-def mlp(train_x, train_y, test_x, test_y, opts={}, normalization=False):
+def mlp(train_x, train_y, test_x, test_y, opts={}, title='', normalization=False):
     '''
     Default setting:
         learning rate: 0.001
@@ -94,21 +94,22 @@ def mlp(train_x, train_y, test_x, test_y, opts={}, normalization=False):
         test_acc.append(accuracy_score(test_y, prediction))
 
     # display the final accuracy
-    print(f'training set accuracy: {train_acc[len(train_acc) - 1]}')
+    print(f'training set accuracy: {train_acc[len(train_acc) - 1] * 100}%')
     print(
         f'test set accuracy at the end of the training step: {test_acc[len(test_acc) - 1]*100}%')
 
     max_test_acc = max(test_acc)
     print(
-        f'maximum test accuracy during the training step: {max_test_acc*100}%')
+        f'maximum test accuracy during the training step: {max_test_acc * 100}%')
 
     plt.figure()
     plt.plot(range(0, epochs), train_acc)
     plt.plot(range(0, epochs), test_acc)
     plt.legend(['train_acc', 'test_acc'])
+    plt.title(f'MLP-{title}')
 
     plt.figure()
-    plt.plot(mlp.loss_curve_)
+    # plt.plot(mlp.loss_curve_)
 
 
 def slp(train_x, train_y, test_x, test_y, normalization=False):
@@ -151,11 +152,31 @@ slp(train_x, train_y, test_x, test_y, normalization=True)
 print('\n')
 
 print(f'==================multiple layers perceptron=====================')
+print(f'=======batch mode======')
 mlp_opts = {
     'hidden_layer_sizes': (28, 5),
+    'batch_size': 900,
+    # l2 penalty
+    # 'alpha': 10
+}
+mlp(train_x, train_y, test_x, test_y, mlp_opts,
+    title='batch mode', normalization=True)
+print(f'=======mini batch mode with regularization======')
+mlp_opts = {
+    'hidden_layer_sizes': (28, 5),
+    'batch_size': 200,
     # l2 penalty
     'alpha': 10
 }
-mlp(train_x, train_y, test_x, test_y, mlp_opts, normalization=True)
-
+mlp(train_x, train_y, test_x, test_y, mlp_opts,
+    title='Mini batch mode with regularization', normalization=True)
+print(f'=======sequential mode======')
+mlp_opts = {
+    'hidden_layer_sizes': (28, 5),
+    'batch_size': 1,
+    # l2 penalty
+    # 'alpha': 10
+}
+mlp(train_x, train_y, test_x, test_y, mlp_opts,
+    title='sequential mode', normalization=True)
 plt.show()
