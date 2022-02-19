@@ -105,10 +105,11 @@ def mlp(train_x, train_y, test_x, test_y, opts={}, title='', normalization=False
     plt.figure()
     plt.plot(range(0, epochs), train_acc)
     plt.plot(range(0, epochs), test_acc)
+    plt.xlabel('epochs')
+    plt.ylabel('accuracy')
     plt.legend(['train_acc', 'test_acc'])
     plt.title(f'MLP-{title}')
 
-    plt.figure()
     # plt.plot(mlp.loss_curve_)
 
 
@@ -139,6 +140,8 @@ def slp(train_x, train_y, test_x, test_y, normalization=False):
     plt.figure()
     plt.plot(range(0, iter_num), train_acc)
     plt.plot(range(0, iter_num), test_acc)
+    plt.xlabel('epochs')
+    plt.ylabel('accuracy')
     plt.legend(['train_acc', 'test_acc'])
     title = 'Normalized data' if normalization else 'Non-normalized data'
     plt.title(f'SLP-{title}')
