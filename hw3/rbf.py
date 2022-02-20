@@ -2,33 +2,51 @@ import math
 import numpy as np
 import random
 
+random.seed(2)
+
 
 class Rbfn:
-    def fit(self, train_x, train_y, strategy='interpolation'):
+    def fit(self, train_x, train_y, strategy='interpolation', regularization=0):
         if strategy == 'interpolation':
-            return self.exact_interpolation(train_x, train_y)
+            return self.exact_interpolation(train_x, train_y, regularization)
         elif strategy == 'fix':
             return self.fixed_selected_random(train_x, train_y)
 
-    def exact_interpolation(self, inputs, labels, std=0.1):
+    def exact_interpolation(self, inputs, labels, regularization=0, std=0.1):
         # inputs: (sample, feature)
         # labels: (sample, 1)
         interpolation_matrix = self.build_interpolation_matrix(
             inputs, inputs, std)
 
-        weights = np.dot(np.linalg.inv(interpolation_matrix), labels)
+        if regularization == 0:
+            weights = np.dot(np.linalg.inv(interpolation_matrix), labels)
+        else:
+            weights = np.dot(np.dot(np.linalg.inv(np.dot(
+                interpolation_matrix.T, interpolation_matrix) + regularization * np.eye(inputs.shape[0], dtype=int)), interpolation_matrix.T), labels)
 
         approximator = self.get_approximator(inputs, weights, std)
 
         return approximator
 
-    def fixed_selected_random(self, inputs, lables):
-        hidden_neurons = 20
+    def fixed_selected_random(self, inputs, labels):
+        center_num = 20
+        selected_data, std = self.select_centers(inputs, center_num=center_num)
 
+        interpolation_matrix = self.build_interpolation_matrix(
+            inputs, selected_data, std)
+
+        weights = np.dot(np.dot(np.linalg.inv(np.dot(
+            interpolation_matrix.T, interpolation_matrix)), interpolation_matrix.T), labels)
+
+        approximator = self.get_approximator(selected_data, weights, std)
+
+        return approximator
+
+    def select_centers(self, inputs, center_num=20):
         # inputs: (sample, feature)
         # labels: (sample, 1)
         random_idx = random.sample(
-            range(0, inputs.shape[0], 1), hidden_neurons)
+            range(0, inputs.shape[0], 1), center_num)
         selected_data = []
 
         for idx in random_idx:
@@ -46,16 +64,9 @@ class Rbfn:
                 if distance > max_distance:
                     max_distance = distance
 
-        std = max_distance / math.sqrt(2 * hidden_neurons)
-        interpolation_matrix = self.build_interpolation_matrix(
-            inputs, selected_data, std)
+        std = max_distance / math.sqrt(2 * center_num)
 
-        weights = np.dot(np.dot(np.linalg.inv(np.dot(
-            interpolation_matrix.T, interpolation_matrix)), interpolation_matrix.T), lables)
-
-        approximator = self.get_approximator(selected_data, weights, std)
-
-        return approximator
+        return (selected_data, std)
 
     def build_interpolation_matrix(self, inputs=[], centers=[], std=0.1):
         interpolation_matrix = np.zeros(

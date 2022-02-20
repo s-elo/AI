@@ -45,4 +45,23 @@ plt.plot(test_x, outputs)
 plt.legend(['testset', 'approximated'])
 plt.title(f'Fixed Centers Selected at Random')
 
+print(f'=======Exact Interpolation With Regularization======')
+regs = [0.1, 0.5, 1, 10]
+
+plt.figure()
+plt.plot(test_x, test_y)
+legend = ['testset']
+
+for reg in regs:
+    approximator = rbf.fit(
+        train_x, train_y, strategy='interpolation', regularization=reg)
+
+    outputs = approximator(test_x)
+
+    plt.plot(test_x, outputs)
+    legend.append(f'reg: {reg}')
+
+plt.legend(legend)
+plt.title(f'Exact Interpolation With Regularization')
+
 plt.show()
