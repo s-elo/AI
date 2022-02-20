@@ -16,6 +16,8 @@ Q2 script is a matlab script
 
 ## 4. Run Q3 script
 
+**put the dataset in the dataset folder: /dataset/dog and /dataset/automobile**
+
 ```bash
 python Q3.py
 ```
