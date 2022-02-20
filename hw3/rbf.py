@@ -104,6 +104,12 @@ class Rbfn:
 
         return approximator
 
+    def get_classification_score(self, outputs, labels):
+        predictions = np.array([np.argmax(x)
+                               for x in outputs]).reshape((labels.shape))
+        error = predictions - labels
+        return len(np.where(error == 0)[0]) / len(error)
+
     def gaussian(self, x, std=0.1):
         return math.exp(-(x**2 / (2*std**2)))
 
