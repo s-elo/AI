@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import random
 
 
 class Rbfn:
@@ -12,21 +13,67 @@ class Rbfn:
     def exact_interpolation(self, inputs, labels, std=0.1):
         # inputs: (sample, feature)
         # labels: (sample, 1)
+        interpolation_matrix = self.build_interpolation_matrix(
+            inputs, inputs, std)
+
+        weights = np.dot(np.linalg.inv(interpolation_matrix), labels)
+
+        approximator = self.get_approximator(inputs, weights, std)
+
+        return approximator
+
+    def fixed_selected_random(self, inputs, lables):
+        hidden_neurons = 20
+
+        # inputs: (sample, feature)
+        # labels: (sample, 1)
+        random_idx = random.sample(
+            range(0, inputs.shape[0], 1), hidden_neurons)
+        selected_data = []
+
+        for idx in random_idx:
+            selected_data.append(inputs[idx])
+        selected_data = np.array(selected_data)
+
+        # find the maximum distance among selected data
+        max_distance = 0
+        for idx in range(0, len(selected_data)):
+            data = selected_data[idx]
+            for idx_ in range(0, len(selected_data)):
+                data_ = selected_data[idx_]
+
+                distance = np.linalg.norm(data_ - data)
+                if distance > max_distance:
+                    max_distance = distance
+
+        std = max_distance / math.sqrt(2 * hidden_neurons)
+        interpolation_matrix = self.build_interpolation_matrix(
+            inputs, selected_data, std)
+
+        weights = np.dot(np.dot(np.linalg.inv(np.dot(
+            interpolation_matrix.T, interpolation_matrix)), interpolation_matrix.T), lables)
+
+        approximator = self.get_approximator(selected_data, weights, std)
+
+        return approximator
+
+    def build_interpolation_matrix(self, inputs=[], centers=[], std=0.1):
         interpolation_matrix = np.zeros(
-            shape=(inputs.shape[0], inputs.shape[0]))
+            shape=(inputs.shape[0], centers.shape[0]))
 
         for idx in range(0, len(inputs)):
             # data: (1, feature)
             data = inputs[idx]
 
-            for idx_ in range(0, len(inputs)):
-                center = inputs[idx_]
+            for idx_ in range(0, len(centers)):
+                center = centers[idx_]
 
                 distance = np.linalg.norm(data - center)
                 interpolation_matrix[idx][idx_] = self.gaussian(distance, std)
 
-        weights = np.dot(np.linalg.inv(interpolation_matrix), labels)
+        return interpolation_matrix
 
+    def get_approximator(self, centers, weights, std=0.1):
         def approximator(test_inputs):
             # hidden_output: (tes_sample, hidden_size(train_sample))
             hidden_output = np.zeros(
@@ -35,8 +82,8 @@ class Rbfn:
             for idx in range(0, len(test_inputs)):
                 test_data = test_inputs[idx]
 
-                for idx_ in range(0, len(inputs)):
-                    center = inputs[idx_]
+                for idx_ in range(0, len(centers)):
+                    center = centers[idx_]
 
                     distance = np.linalg.norm(test_data - center)
                     hidden_output[idx][idx_] = self.gaussian(distance, std)
@@ -46,11 +93,7 @@ class Rbfn:
 
         return approximator
 
-    def fixed_selected_random(self, inputs, lables):
-        pass
-
     def gaussian(self, x, std=0.1):
-        # x: (1, feature)
         return math.exp(-(x**2 / (2*std**2)))
 
 
@@ -65,3 +108,4 @@ if __name__ == '__main__':
     g = np.random.normal(loc=0, scale=1, size=10).reshape((10, 1))
     # g = np.reshape(g, (10, 1))
     print(g.shape)
+    print(random.sample(range(0, 40, 1), 20))

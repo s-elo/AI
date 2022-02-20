@@ -21,9 +21,9 @@ test_y = 1.2 * np.sin(math.pi * test_x) - np.cos(2.4 * math.pi * test_x)
 print(f'test input shape: {test_x.shape}, test label shape: {test_y.shape}')
 print('\n')
 
-print(f'=======Exact Interpolation======')
 rbf = Rbfn()
 
+print(f'=======Exact Interpolation======')
 approximator = rbf.fit(train_x, train_y, strategy='interpolation')
 
 outputs = approximator(test_x)
@@ -34,5 +34,15 @@ plt.plot(test_x, outputs)
 plt.legend(['testset', 'approximated'])
 plt.title(f'Exact Interpolation')
 
+print(f'=======Fixed Centers Selected at Random======')
+approximator = rbf.fit(train_x, train_y, strategy='fix')
+
+outputs = approximator(test_x)
+
+plt.figure()
+plt.plot(test_x, test_y)
+plt.plot(test_x, outputs)
+plt.legend(['testset', 'approximated'])
+plt.title(f'Fixed Centers Selected at Random')
 
 plt.show()
