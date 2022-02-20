@@ -6,9 +6,9 @@ random.seed(2)
 
 
 class Rbfn:
-    def fit(self, train_x, train_y, strategy='interpolation', regularization=0):
+    def fit(self, train_x, train_y, strategy='interpolation', regularization=0, std=0.1):
         if strategy == 'interpolation':
-            return self.exact_interpolation(train_x, train_y, regularization)
+            return self.exact_interpolation(train_x, train_y, regularization, std)
         elif strategy == 'fix':
             return self.fixed_selected_random(train_x, train_y)
 
