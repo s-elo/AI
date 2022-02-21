@@ -1,6 +1,7 @@
 from scipy.io import loadmat
 import numpy as np
 from rbf import Rbfn
+import matplotlib.pyplot as plt
 
 
 def loadData():
@@ -21,6 +22,7 @@ def loadData():
     # 9, 4 -> [0,1], remainging -> [1,0] (one-hot)
     one_hot_train_label = []
     one_hot_test_label = []
+
     for idx in range(0, train_num):
         label = train_label[0][idx]
 
@@ -52,12 +54,95 @@ train_data, train_label, test_data, test_label, nor_train_label, nor_test_label 
 
 rbf = Rbfn()
 
-approximator = rbf.fit(train_data, train_label,
-                       strategy='interpolation', regularization=0, std=100)
-train_outputs = approximator(train_data)
-test_outputs = approximator(test_data)
 
-train_acc = rbf.get_classification_score(train_outputs, nor_train_label)
-test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
-print(f'train accuracy: {train_acc * 100}%')
-print(f'test accuracy: {test_acc * 100}%')
+def a():
+    print(f'========a. Exact Interpolation==========')
+    regs = [0, 0.1, 1, 10]
+    for reg in regs:
+        if reg == 0:
+            print(f'===exact interpolation without regularization===')
+        else:
+            print(f'===exact interpolation with regularization {reg}===')
+        approximator = rbf.fit(train_data, train_label,
+                               strategy='interpolation', regularization=reg, std=100)
+        train_outputs = approximator(train_data)
+        test_outputs = approximator(test_data)
+        train_acc = rbf.get_classification_score(
+            train_outputs, nor_train_label)
+        test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
+        print(f'train accuracy: {train_acc * 100}%')
+        print(f'test accuracy: {test_acc * 100}%')
+
+
+print('\n')
+
+
+def b():
+    print(f'========b. Fixed Centers Selected at Random==========')
+    stds = [0, 0.1, 1, 10, 100, 1000, 10000]
+    for std in stds:
+        if std == 0:
+            print(f'===widths fixed at an appropriate size===')
+        else:
+            print(f'===widths is {std}===')
+
+        approximator = rbf.fit(train_data, train_label,
+                               strategy='fix', std=std, center_num=100)
+
+        train_outputs = approximator(train_data)
+        test_outputs = approximator(test_data)
+        train_acc = rbf.get_classification_score(
+            train_outputs, nor_train_label)
+        test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
+        print(f'train accuracy: {train_acc * 100}%')
+        print(f'test accuracy: {test_acc * 100}%')
+
+
+def c():
+    print(f'========c. K-Mean Clustering==========')
+    approximator, k_mean_centers = rbf.fit(train_data, train_label,
+                                           strategy='k_mean', std=0.1, center_num=2)
+
+    train_outputs = approximator(train_data)
+    test_outputs = approximator(test_data)
+    train_acc = rbf.get_classification_score(
+        train_outputs, nor_train_label)
+    test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
+    print(f'train accuracy: {train_acc * 100}%')
+    print(f'test accuracy: {test_acc * 100}%')
+
+    # seperate the training data for each class
+    c0 = []
+    c1 = []
+    for idx in range(0, nor_train_label.shape[0]):
+        c = nor_train_label[idx]
+        if c == 0:
+            c0.append(train_data[idx])
+        elif c == 1:
+            c1.append(train_data[idx])
+
+    means = np.array([np.mean(c0, axis=0), np.mean(c1, axis=0)])
+    # c0_mean = np.mean(c0, axis=0)
+    # c1_mean = np.mean(c1, axis=0)
+    print(means[0].shape, k_mean_centers[0].shape)
+
+    dims = [24, 29]
+
+    print(means[:, dims[1]])
+    plt.figure()
+    plt.scatter(np.array(c0)[:, dims[0]], np.array(c0)
+                [:, dims[1]], s=5, c='blue')
+    plt.scatter(np.array(c1)[:, dims[0]], np.array(c1)
+                [:, dims[1]], s=5, c='green')
+    plt.scatter(means[:, dims[0]], means[:, dims[1]], s=200, c='red')
+    plt.scatter(k_mean_centers[:, dims[0]],
+                k_mean_centers[:, dims[1]], s=200, c='black')
+
+    print(np.abs(means - k_mean_centers).sum() / (2 * 784))
+
+
+# a()
+# b()
+c()
+
+plt.show()

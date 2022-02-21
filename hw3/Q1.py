@@ -24,7 +24,7 @@ print('\n')
 rbf = Rbfn()
 
 print(f'=======Exact Interpolation======')
-approximator = rbf.fit(train_x, train_y, strategy='interpolation')
+approximator = rbf.fit(train_x, train_y, strategy='interpolation', std=0.1)
 
 outputs = approximator(test_x)
 
@@ -35,7 +35,8 @@ plt.legend(['testset', 'approximated'])
 plt.title(f'Exact Interpolation')
 
 print(f'=======Fixed Centers Selected at Random======')
-approximator = rbf.fit(train_x, train_y, strategy='fix')
+# use the appropriate size std
+approximator = rbf.fit(train_x, train_y, strategy='fix', std=0)
 
 outputs = approximator(test_x)
 
@@ -54,7 +55,7 @@ legend = ['testset']
 
 for reg in regs:
     approximator = rbf.fit(
-        train_x, train_y, strategy='interpolation', regularization=reg)
+        train_x, train_y, strategy='interpolation', regularization=reg, std=0.1)
 
     outputs = approximator(test_x)
 

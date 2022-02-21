@@ -6,11 +6,13 @@ random.seed(2)
 
 
 class Rbfn:
-    def fit(self, train_x, train_y, strategy='interpolation', regularization=0, std=0.1):
+    def fit(self, train_x, train_y, strategy='interpolation', regularization=0, std=0, center_num=20):
         if strategy == 'interpolation':
             return self.exact_interpolation(train_x, train_y, regularization, std)
         elif strategy == 'fix':
-            return self.fixed_selected_random(train_x, train_y)
+            return self.fixed_selected_random(train_x, train_y, center_num, std)
+        elif strategy == 'k_mean':
+            return self.k_mean(train_x, train_y, center_num)
 
     def exact_interpolation(self, inputs, labels, regularization=0, std=0.1):
         # inputs: (sample, feature)
@@ -28,45 +30,117 @@ class Rbfn:
 
         return approximator
 
-    def fixed_selected_random(self, inputs, labels):
-        center_num = 20
-        selected_data, std = self.select_centers(inputs, center_num=center_num)
+    def fixed_selected_random(self, inputs, labels, center_num=20, std=0):
+        selected_centers, app_std = self.select_centers(
+            inputs, center_num=center_num)
+
+        if std == 0:
+            std = app_std
+            print(f'The appropriate widths is {std}')
 
         interpolation_matrix = self.build_interpolation_matrix(
-            inputs, selected_data, std)
+            inputs, selected_centers, std)
 
         weights = np.dot(np.dot(np.linalg.inv(np.dot(
             interpolation_matrix.T, interpolation_matrix)), interpolation_matrix.T), labels)
 
-        approximator = self.get_approximator(selected_data, weights, std)
+        approximator = self.get_approximator(selected_centers, weights, std)
 
         return approximator
+
+    def k_mean(self, inputs, labels, center_num=2, std=0.1):
+        selected_centers = self.k_mean_selection(inputs, center_num)
+
+        interpolation_matrix = self.build_interpolation_matrix(
+            inputs, selected_centers, std)
+
+        weights = np.dot(np.dot(np.linalg.inv(np.dot(
+            interpolation_matrix.T, interpolation_matrix)), interpolation_matrix.T), labels)
+
+        approximator = self.get_approximator(selected_centers, weights, std)
+
+        return (approximator, np.array(selected_centers))
+
+    def k_mean_selection(self, inputs, center_num=2):
+        np.random.seed(1)
+        # inputs: (sample, feature)
+        # labels: (sample, 1)
+        feature_num = inputs.shape[1]
+        selected_centers = np.random.randn(center_num, feature_num)
+        center_clusters = [[] for _ in range(0, center_num)]
+
+        iter_num = 0
+
+        while (iter_num < 100):
+            for idx in range(0, inputs.shape[0]):
+                data = inputs[idx]
+
+                # get the closest centers
+                closest_distance = math.inf
+                closest_center_idx = 0
+                for center_idx in range(0, selected_centers.shape[0]):
+                    center = selected_centers[center_idx]
+                    distance = np.linalg.norm(center - data)
+
+                    if (distance < closest_distance):
+                        # update the closest center
+                        closest_distance = distance
+                        closest_center_idx = center_idx
+
+                # assign the data to the closest center
+                center_clusters[closest_center_idx].append(data)
+
+            prev_centers = selected_centers.copy()
+            # update the center
+            for center_idx in range(0, len(center_clusters)):
+                cluster = center_clusters[center_idx]
+                # print(np.array(cluster).shape)
+                # no cluster, then randomize the center again
+                if len(cluster) == 0:
+                    selected_centers[center_idx] = np.random.randn(
+                        1, feature_num)
+                else:
+                    selected_centers[center_idx] = np.mean(
+                        cluster, axis=0).reshape((1, feature_num))
+
+                # clear the clusters
+                center_clusters[center_idx] = []
+
+            # check if it is converged
+            diff = np.abs(prev_centers - selected_centers).sum() / \
+                (center_num * feature_num)
+            if diff == 0:
+                break
+
+            iter_num += 1
+
+        return selected_centers
 
     def select_centers(self, inputs, center_num=20):
         # inputs: (sample, feature)
         # labels: (sample, 1)
         random_idx = random.sample(
             range(0, inputs.shape[0], 1), center_num)
-        selected_data = []
+        selected_centers = []
 
         for idx in random_idx:
-            selected_data.append(inputs[idx])
-        selected_data = np.array(selected_data)
+            selected_centers.append(inputs[idx])
+        selected_centers = np.array(selected_centers)
 
         # find the maximum distance among selected data
         max_distance = 0
-        for idx in range(0, len(selected_data)):
-            data = selected_data[idx]
-            for idx_ in range(0, len(selected_data)):
-                data_ = selected_data[idx_]
+        for idx in range(0, len(selected_centers)):
+            data = selected_centers[idx]
+            for idx_ in range(0, len(selected_centers)):
+                center = selected_centers[idx_]
 
-                distance = np.linalg.norm(data_ - data)
+                distance = np.linalg.norm(center - data)
                 if distance > max_distance:
                     max_distance = distance
 
         std = max_distance / math.sqrt(2 * center_num)
 
-        return (selected_data, std)
+        return (selected_centers, std)
 
     def build_interpolation_matrix(self, inputs=[], centers=[], std=0.1):
         interpolation_matrix = np.zeros(
@@ -126,3 +200,11 @@ if __name__ == '__main__':
     # g = np.reshape(g, (10, 1))
     print(g.shape)
     print(random.sample(range(0, 40, 1), 20))
+
+    arr1 = np.array([[1, 2], [3, 4]])
+    arr2 = np.array([[0.9, 2.1], [3.1, 4.1]])
+    print(np.mean(arr1, axis=0).reshape((1, 2)).shape)
+    print([[] for i in range(0, 3)])
+
+    print(np.abs(arr1 - arr2).sum())
+    print(arr2[:, 0])
