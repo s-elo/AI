@@ -4,6 +4,19 @@ import matplotlib.pyplot as plt
 
 
 class Som:
+    def fit(self, train_data, train_label, dim='two', map_size=(10, 10), max_iter=1000):
+        if dim == 'two':
+            # (map_row_size, map_col_size, feature)
+            neuron_weights = self.two_dim_som(train_data, map_size, max_iter)
+        elif dim == 'one':
+            # (neuron_num, feature)
+            neuron_weights = self.one_dim_som(train_data, map_size, max_iter)
+
+        return neuron_weights
+
+    def get_classifier_one(self, neuron_weights, train_data, train_label):
+        pass
+
     def one_dim_som(self, train_data, map_size, max_iter=500):
         np.random.seed(1)
         sample_num, feature_num = train_data.shape
@@ -170,6 +183,19 @@ class Som:
                      marker='o', c='blue')
             self.draw_neurons(neuron_weights, start_pos=(
                 cur_row, cur_col + 1), row_num=row_num, col_num=col_num)
+
+    def draw_weight_map(self, neuron_weights):
+        row_num, col_num, _ = neuron_weights.shape
+        fig, ax = plt.subplots(10, 10)
+
+        for row_idx in range(0, row_num):
+            for col_idx in range(0, col_num):
+                weights = neuron_weights[row_idx][col_idx]
+                ax[row_idx, col_idx].imshow(
+                    weights.reshape((28, 28)), cmap='gray')
+                ax[row_idx, col_idx].axis('off')
+
+        fig.suptitle('weights map')
 
     def gaussian(self, x, std=0.1):
         return math.exp(-(x**2 / (2*std**2)))

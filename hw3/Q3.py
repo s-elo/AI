@@ -3,14 +3,14 @@ import numpy.matlib as mb
 import scipy.special as sc
 import math
 import matplotlib.pyplot as plt
-from sklearn import neighbors
+from scipy.io import loadmat
 from som import Som
 
 som = Som()
 
 
 def a():
-    print(f'=====one dimensional SOM for hat=====')
+    print(f'=====a. one dimensional SOM for hat=====')
     train_data = np.linspace(-math.pi, math.pi, 400)
     # (sample, feature)
     train_data = np.array([train_data, np.sinc(train_data)]).T
@@ -29,7 +29,7 @@ def a():
 
 
 def b():
-    print(f'=====two dimensional SOM for circle=====')
+    print(f'=====b. two dimensional SOM for circle=====')
     x = np.random.randn(800, 2)
     s = np.sum(np.multiply(x, x), axis=1).reshape(800, 1)
     train_data = np.multiply(x, mb.repmat(
@@ -51,7 +51,50 @@ def b():
     plt.title('two dimensional SOM')
 
 
-a()
-b()
+def c():
+    print(f'=====c. som for classification=====')
+    dataset = loadmat('./dataset/Digits.mat')
+
+    # (784, 1000).T (1, 1000).T (784, 100).T (1, 100).T
+    train_data = dataset['train_data'].T
+    train_label = dataset['train_classlabel'].T
+    test_data = dataset['test_data'].T
+    test_label = dataset['test_classlabel'].T
+
+    # omit the class 4 and class 0
+    train_x = []
+    train_y = []
+    test_x = []
+    test_y = []
+    for idx in range(0, train_label.shape[0]):
+        label = train_label[idx]
+
+        if label != 4 and label != 0:
+            train_x.append(train_data[idx])
+            train_y.append(label)
+
+    for idx in range(0, test_label.shape[0]):
+        label = test_label[idx]
+
+        if label != 4 and label != 0:
+            test_x.append(test_data[idx])
+            test_y.append(label)
+
+    train_x = np.array(train_x)
+    train_y = np.array(train_y).reshape((len(train_y), 1))
+    test_x = np.array(test_x)
+    test_y = np.array(test_y).reshape((len(test_y), 1))
+    print(train_x.shape, train_y.shape,
+          test_x.shape, test_y.shape)
+
+    neuron_weights = som.fit(train_x, train_y, max_iter=5000)
+    print(neuron_weights.shape)
+
+    som.draw_weight_map(neuron_weights)
+
+
+# a()
+# b()
+c()
 
 plt.show()
