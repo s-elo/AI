@@ -131,18 +131,20 @@ def c():
     print(means[:, dims[1]])
     plt.figure()
     plt.scatter(np.array(c0)[:, dims[0]], np.array(c0)
-                [:, dims[1]], s=5, c='blue')
+                [:, dims[1]], s=5, c='blue', label='class0')
     plt.scatter(np.array(c1)[:, dims[0]], np.array(c1)
-                [:, dims[1]], s=5, c='green')
-    plt.scatter(means[:, dims[0]], means[:, dims[1]], s=200, c='red')
+                [:, dims[1]], s=5, c='green', label='class1')
+    plt.scatter(means[:, dims[0]], means[:, dims[1]],
+                s=200, c='red', label='mean of training data')
     plt.scatter(k_mean_centers[:, dims[0]],
-                k_mean_centers[:, dims[1]], s=200, c='black')
+                k_mean_centers[:, dims[1]], s=200, c='black', label='center of k mean')
+    plt.legend()
 
     print(np.abs(means - k_mean_centers).sum() / (2 * 784))
 
 
-# a()
-# b()
+a()
+b()
 c()
 
 plt.show()
