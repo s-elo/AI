@@ -18,7 +18,7 @@ def a():
 
     som = Som()
 
-    neuron_weights = som.one_dim_som(train_data, map_size=(1, 40), max_iter=20)
+    neuron_weights = som.one_dim_som(train_data, map_size=(1, 40), max_iter=8000)
     # print(neuron_weights.shape)
     plt.plot(neuron_weights[:, 0], neuron_weights[:, 1], marker='o', c='blue')
     plt.legend(['train data', 'neuron weights'])
@@ -36,7 +36,7 @@ def b():
     plt.scatter(train_data[:, 0], train_data[:, 1], marker='+', c='red')
 
 
-a()
+# a()
 b()
 
 plt.show()
