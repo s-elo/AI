@@ -120,31 +120,44 @@ def c():
             c0.append(train_data[idx])
         elif c == 1:
             c1.append(train_data[idx])
-
-    means = np.array([np.mean(c0, axis=0), np.mean(c1, axis=0)])
-    # c0_mean = np.mean(c0, axis=0)
-    # c1_mean = np.mean(c1, axis=0)
-    print(means[0].shape, k_mean_centers[0].shape)
-
-    dims = [24, 29]
-
-    print(means[:, dims[1]])
     plt.figure()
-    plt.scatter(np.array(c0)[:, dims[0]], np.array(c0)
-                [:, dims[1]], s=5, c='blue', label='class0')
-    plt.scatter(np.array(c1)[:, dims[0]], np.array(c1)
-                [:, dims[1]], s=5, c='green', label='class1')
-    plt.scatter(means[:, dims[0]], means[:, dims[1]],
-                s=200, c='red', label='mean of training data')
-    plt.scatter(k_mean_centers[:, dims[0]],
-                k_mean_centers[:, dims[1]], s=200, c='black', label='center of k mean')
-    plt.legend()
+    plt.subplot(221)
+    plt.imshow(np.mean(c0, axis=0).reshape((28, 28)), cmap='gray')
+    plt.title(f'mean of training data')
+    plt.subplot(222)
+    plt.imshow(np.mean(c1, axis=0).reshape((28, 28)), cmap='gray')
+    plt.title(f'mean of training data')
+    plt.subplot(223)
+    plt.imshow(k_mean_centers[0].reshape((28, 28)), cmap='gray')
+    plt.title(f'center of k mean')
+    plt.subplot(224)
+    plt.imshow(k_mean_centers[1].reshape((28, 28)), cmap='gray')
+    plt.title(f'center of k mean')
 
-    print(np.abs(means - k_mean_centers).sum() / (2 * 784))
+    # means = np.array([np.mean(c0, axis=0), np.mean(c1, axis=0)])
+    # # c0_mean = np.mean(c0, axis=0)
+    # # c1_mean = np.mean(c1, axis=0)
+    # print(means[0].shape, k_mean_centers[0].shape)
+
+    # dims = [24, 29]
+
+    # print(means[:, dims[1]])
+    # plt.figure()
+    # plt.scatter(np.array(c0)[:, dims[0]], np.array(c0)
+    #             [:, dims[1]], s=5, c='blue', label='class0')
+    # plt.scatter(np.array(c1)[:, dims[0]], np.array(c1)
+    #             [:, dims[1]], s=5, c='green', label='class1')
+    # plt.scatter(means[:, dims[0]], means[:, dims[1]],
+    #             s=200, c='red', label='mean of training data')
+    # plt.scatter(k_mean_centers[:, dims[0]],
+    #             k_mean_centers[:, dims[1]], s=200, c='black', label='center of k mean')
+    # plt.legend()
+
+    # print(np.abs(means - k_mean_centers).sum() / (2 * 784))
 
 
-a()
-b()
+# a()
+# b()
 c()
 
 plt.show()
