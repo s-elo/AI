@@ -5,3 +5,5 @@ images
 *.pdf
 
 data
+
+*.pt
