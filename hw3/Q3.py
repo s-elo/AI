@@ -42,7 +42,7 @@ def b():
 
     # (neuron_row_num, neuron_col_num, feature_num)
     neuron_weights = som.two_dim_som(
-        train_data, map_size=(8, 8), max_iter=4000)
+        train_data, map_size=(8, 8), max_iter=8000)
     # print(neuron_weights.shape)
 
     som.draw_neurons(neuron_weights, row_num=8, col_num=8, set_label=True)
@@ -84,17 +84,23 @@ def c():
     train_y = np.array(train_y).reshape((len(train_y), 1))
     test_x = np.array(test_x)
     test_y = np.array(test_y).reshape((len(test_y), 1))
-    print(train_x.shape, train_y.shape,
-          test_x.shape, test_y.shape)
+    # print(train_x.shape, train_y.shape,
+    #       test_x.shape, test_y.shape)
 
-    neuron_weights = som.fit(train_x, train_y, max_iter=5000)
-    print(neuron_weights.shape)
+    classifier, neuron_weights = som.fit(train_x, train_y, max_iter=12000)
+    # print(neuron_weights.shape)
 
     som.draw_weight_map(neuron_weights)
 
+    outputs = classifier(test_x)
+    # print(outputs.shape)
 
-# a()
-# b()
+    accuracy = np.sum(outputs == test_y) / test_y.shape[0]
+    print(f'The test accuracy: {accuracy * 100}%')
+
+
+a()
+b()
 c()
 
 plt.show()
