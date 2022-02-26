@@ -5,3 +5,5 @@ images
 data
 
 *.pt
+
+__pycache__
