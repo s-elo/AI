@@ -7,3 +7,5 @@ data
 *.pt
 
 __pycache__
+
+*.zip
