@@ -3,6 +3,7 @@ import numpy as np
 import random
 
 random.seed(2)
+np.random.seed(22)
 
 
 class Rbfn:
@@ -62,7 +63,6 @@ class Rbfn:
         return (approximator, np.array(selected_centers))
 
     def k_mean_selection(self, inputs, center_num=2):
-        np.random.seed(1)
         # inputs: (sample, feature)
         # labels: (sample, 1)
         feature_num = inputs.shape[1]
@@ -160,7 +160,7 @@ class Rbfn:
 
     def get_approximator(self, centers, weights, std=0.1):
         def approximator(test_inputs):
-            # hidden_output: (tes_sample, hidden_size(train_sample))
+            # hidden_output: (tes_sample, hidden_size)
             hidden_output = np.zeros(
                 shape=(test_inputs.shape[0], weights.shape[0]))
 
@@ -178,11 +178,36 @@ class Rbfn:
 
         return approximator
 
-    def get_classification_score(self, outputs, labels):
+    def get_classification_score_one_hot(self, outputs, labels):
         predictions = np.array([np.argmax(x)
-                               for x in outputs]).reshape((labels.shape))
+                                for x in outputs]).reshape((labels.shape))
         error = predictions - labels
         return len(np.where(error == 0)[0]) / len(error)
+
+    def get_classification_score(self, tr_outputs, te_outputs, tr_labels, te_labels):
+        max_output = np.amax(tr_outputs, axis=0)[0]
+        min_output = np.amin(tr_outputs, axis=0)[0]
+
+        train_sample_num = tr_outputs.shape[0]
+        test_sample_num = te_outputs.shape[0]
+
+        tr_acc = []
+        te_acc = []
+        thrs = []
+
+        for idx in range(0, train_sample_num):
+            threshold = (max_output - min_output) * idx / 1000 + min_output
+            thrs.append(threshold)
+
+            tr_accurracy = (sum(tr_labels[tr_outputs < threshold] == 0) +
+                            sum(tr_labels[tr_outputs >= threshold] == 1)) / train_sample_num
+            te_accurracy = (sum(te_labels[te_outputs < threshold] == 0) +
+                            sum(te_labels[te_outputs >= threshold] == 1)) / test_sample_num
+
+            tr_acc.append(tr_accurracy)
+            te_acc.append(te_accurracy)
+
+        return (tr_acc, te_acc, thrs)
 
     def gaussian(self, x, std=0.1):
         return math.exp(-(x**2 / (2*std**2)))
@@ -191,7 +216,8 @@ class Rbfn:
 if __name__ == '__main__':
     print('testing...')
     vec1 = np.array([[1, 2, 3]])
-    vec2 = np.array([[3, 4, 5]])
+    vec2 = np.array([[3, 5, 4]])
+    print(vec1[vec2 < 5], sum(vec1[vec2 < 5] == 1))
     print(np.linalg.norm(vec1 - vec2))
     print(-(1**2 / (2*0.1**2)), 2*(0.1**2))
     print(math.exp(-(1**2 / 2*(0.1**2))))

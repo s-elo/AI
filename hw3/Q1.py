@@ -2,6 +2,9 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from rbf import Rbfn
+import random
+
+np.random.seed(22)
 
 train_x = np.arange(-1.6, 1.6, 0.08)
 train_x = np.reshape(train_x, (train_x.shape[0], 1))
@@ -46,22 +49,20 @@ plt.legend(['testset', 'approximated'])
 plt.title(f'Fixed Centers Selected at Random')
 
 print(f'=======Exact Interpolation With Regularization======')
-regs = [0.1, 0.5, 1, 10]
+regs = [0.01, 0.1, 1, 10]
 
-plt.figure()
-plt.plot(test_x, test_y)
-legend = ['testset']
+fig, ax = plt.subplots(1, 4, figsize=(16,5))
 
-for reg in regs:
+for idx, reg in enumerate(regs):
     approximator = rbf.fit(
         train_x, train_y, strategy='interpolation', regularization=reg, std=0.1)
 
     outputs = approximator(test_x)
 
-    plt.plot(test_x, outputs)
-    legend.append(f'reg: {reg}')
+    ax[idx].plot(test_x, outputs, label=f'reg: {reg}')
+    ax[idx].plot(test_x, test_y, label=f'testset')
+    ax[idx].legend()
 
-plt.legend(legend)
-plt.title(f'Exact Interpolation With Regularization')
+fig.suptitle(f'Exact Interpolation With Regularization')
 
 plt.show()

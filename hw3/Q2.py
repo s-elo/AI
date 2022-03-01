@@ -2,6 +2,7 @@ from scipy.io import loadmat
 import numpy as np
 from rbf import Rbfn
 import matplotlib.pyplot as plt
+import math
 
 
 def loadData():
@@ -57,21 +58,48 @@ rbf = Rbfn()
 
 def a():
     print(f'========a. Exact Interpolation==========')
-    regs = [0, 0.1, 1, 10]
-    for reg in regs:
+    regs = [0, 0.01, 0.1, 1, 10, 20]
+
+    row_num = 2
+    col_num = 3
+    fig, ax = plt.subplots(2, 3, figsize=(16, 10))
+
+    for idx, reg in enumerate(regs):
         if reg == 0:
             print(f'===exact interpolation without regularization===')
+            title = f'without regularization'
         else:
             print(f'===exact interpolation with regularization {reg}===')
-        approximator = rbf.fit(train_data, train_label,
+            title = f'regularization {reg}'
+        approximator = rbf.fit(train_data, nor_train_label,
                                strategy='interpolation', regularization=reg, std=100)
         train_outputs = approximator(train_data)
         test_outputs = approximator(test_data)
-        train_acc = rbf.get_classification_score(
-            train_outputs, nor_train_label)
-        test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
-        print(f'train accuracy: {train_acc * 100}%')
-        print(f'test accuracy: {test_acc * 100}%')
+
+        tr_acc, te_acc, thrs = rbf.get_classification_score(
+            train_outputs, test_outputs, nor_train_label, nor_test_label)
+
+        print(f'train final accuracy: {tr_acc[len(tr_acc) - 1] * 100}%')
+        print(f'train maximum accuracy: {max(tr_acc) * 100}%')
+        print(f'test final accuracy: {te_acc[len(te_acc) - 1] * 100}%')
+        print(f'test maximum accuracy: {max(te_acc) * 100}%')
+
+        col = idx % col_num
+        row = math.floor(idx / col_num)
+
+        ax[row, col].plot(thrs, tr_acc, label='train accuracy')
+        ax[row, col].plot(thrs, te_acc, label='test accuracy')
+        ax[row, col].legend()
+        ax[row, col].set_xlabel('treshold')
+        ax[row, col].set_ylabel('accuracy')
+        ax[row, col].set_title(title)
+
+        # one hot format
+        # train_acc = rbf.get_classification_score(
+        #     train_outputs, nor_train_label)
+        # test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
+        # print(f'train accuracy: {train_acc * 100}%')
+        # print(f'test accuracy: {test_acc * 100}%')
 
 
 print('\n')
@@ -79,37 +107,94 @@ print('\n')
 
 def b():
     print(f'========b. Fixed Centers Selected at Random==========')
-    stds = [0, 0.1, 1, 10, 100, 1000, 10000]
-    for std in stds:
+    stds = [0, 0.1, 1, 10, 50, 100, 1000, 10000, 20, 70]
+
+    col_num = 4
+    fig, ax = plt.subplots(2, 4, figsize=(16, 10))
+
+    max_te_acc = []
+
+    for idx, std in enumerate(stds):
         if std == 0:
             print(f'===widths fixed at an appropriate size===')
+            title = f'appropriate width'
         else:
             print(f'===widths is {std}===')
+            title = f'widths is {std}'
 
-        approximator = rbf.fit(train_data, train_label,
+        approximator = rbf.fit(train_data, nor_train_label,
                                strategy='fix', std=std, center_num=100)
 
         train_outputs = approximator(train_data)
         test_outputs = approximator(test_data)
-        train_acc = rbf.get_classification_score(
-            train_outputs, nor_train_label)
-        test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
-        print(f'train accuracy: {train_acc * 100}%')
-        print(f'test accuracy: {test_acc * 100}%')
+
+        tr_acc, te_acc, thrs = rbf.get_classification_score(
+            train_outputs, test_outputs, nor_train_label, nor_test_label)
+
+        print(f'train final accuracy: {tr_acc[len(tr_acc) - 1] * 100}%')
+        print(f'train maximum accuracy: {max(tr_acc) * 100}%')
+        print(f'test final accuracy: {te_acc[len(te_acc) - 1] * 100}%')
+        print(f'test maximum accuracy: {max(te_acc) * 100}%')
+
+        max_te_acc.append(max(te_acc))
+
+        if idx >= 8:
+            continue
+
+        col = idx % col_num
+        row = math.floor(idx / col_num)
+
+        ax[row, col].plot(thrs, tr_acc, label='train accuracy')
+        ax[row, col].plot(thrs, te_acc, label='test accuracy')
+        ax[row, col].legend()
+        ax[row, col].set_xlabel('treshold')
+        ax[row, col].set_ylabel('accuracy')
+        ax[row, col].set_title(title)
+
+        # one hot format
+        # train_acc = rbf.get_classification_score(
+        #     train_outputs, nor_train_label)
+        # test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
+        # print(f'train accuracy: {train_acc * 100}%')
+        # print(f'test accuracy: {test_acc * 100}%')
+
+    plt.figure()
+    sorted_idx = np.argsort(stds)
+    plt.plot(np.array(stds)[sorted_idx], np.array(max_te_acc)[sorted_idx])
+    plt.xlabel('width')
+    plt.ylabel('maximum test accuracy')
+    plt.title('maximum test accuracy with different width')
 
 
 def c():
     print(f'========c. K-Mean Clustering==========')
-    approximator, k_mean_centers = rbf.fit(train_data, train_label,
+    approximator, k_mean_centers = rbf.fit(train_data, nor_train_label,
                                            strategy='k_mean', std=0.1, center_num=2)
 
     train_outputs = approximator(train_data)
     test_outputs = approximator(test_data)
-    train_acc = rbf.get_classification_score(
-        train_outputs, nor_train_label)
-    test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
-    print(f'train accuracy: {train_acc * 100}%')
-    print(f'test accuracy: {test_acc * 100}%')
+
+    tr_acc, te_acc, thrs = rbf.get_classification_score(
+        train_outputs, test_outputs, nor_train_label, nor_test_label)
+
+    print(f'train final accuracy: {tr_acc[len(tr_acc) - 1] * 100}%')
+    print(f'train maximum accuracy: {max(tr_acc) * 100}%')
+    print(f'test final accuracy: {te_acc[len(te_acc) - 1] * 100}%')
+    print(f'test maximum accuracy: {max(te_acc) * 100}%')
+
+    # one hot
+    # train_acc = rbf.get_classification_score(
+    #     train_outputs, nor_train_label)
+    # test_acc = rbf.get_classification_score(test_outputs, nor_test_label)
+    # print(f'train accuracy: {train_acc * 100}%')
+    # print(f'test accuracy: {test_acc * 100}%')
+
+    plt.plot(thrs, tr_acc, label='train accuracy')
+    plt.plot(thrs, te_acc, label='test accuracy')
+    plt.legend()
+    plt.xlabel('treshold')
+    plt.ylabel('accuracy')
+    plt.title('k mean accuracy')
 
     # seperate the training data for each class
     c0 = []
@@ -120,7 +205,7 @@ def c():
             c0.append(train_data[idx])
         elif c == 1:
             c1.append(train_data[idx])
-    plt.figure()
+    plt.figure(figsize=(5, 7))
     plt.subplot(221)
     plt.imshow(np.mean(c0, axis=0).reshape((28, 28)), cmap='gray')
     plt.title(f'mean of training data')
@@ -156,8 +241,8 @@ def c():
     # print(np.abs(means - k_mean_centers).sum() / (2 * 784))
 
 
-# a()
-# b()
+a()
+b()
 c()
 
 plt.show()
