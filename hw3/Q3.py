@@ -87,16 +87,36 @@ def c():
     # print(train_x.shape, train_y.shape,
     #       test_x.shape, test_y.shape)
 
-    classifier, neuron_weights = som.fit(train_x, train_y, max_iter=12000)
-    # print(neuron_weights.shape)
+    iters = [1000, 2000, 5000, 10000, 12000, 18000, 22000]
+    train_acc = []
+    test_acc = []
+    for n in iters:
+        print(f'==={n} iterations===')
+        classifier, neuron_weights = som.fit(train_x, train_y, max_iter=n)
+        # print(neuron_weights.shape)
 
-    som.draw_weight_map(neuron_weights)
+        if n == 18000:
+            som.draw_weight_map(neuron_weights)
 
-    outputs = classifier(test_x)
-    # print(outputs.shape)
+        test_outputs = classifier(test_x)
+        train_outputs = classifier(train_x)
+        # print(outputs.shape)
 
-    accuracy = np.sum(outputs == test_y) / test_y.shape[0]
-    print(f'The test accuracy: {accuracy * 100}%')
+        train_accuracy = np.sum(train_outputs == train_y) / train_y.shape[0]
+        test_accuracy = np.sum(test_outputs == test_y) / test_y.shape[0]
+        print(f'The train accuracy: {train_accuracy * 100}%')
+        print(f'The test accuracy: {test_accuracy * 100}%')
+
+        train_acc.append(train_accuracy)
+        test_acc.append(test_accuracy)
+
+    plt.figure()
+    plt.plot(iters, train_acc, label='train set')
+    plt.plot(iters, test_acc, label='test set')
+    plt.xlabel('iterations')
+    plt.ylabel('accruacy')
+    plt.legend()
+    plt.title('accuracy with different iterations')
 
 
 a()
